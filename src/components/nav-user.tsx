@@ -34,8 +34,8 @@ export function NavUser({
   const clearServices = useServicesStore((s) => s.clear);
   const navigate = useNavigate();
 
-  async function handleLogout() {
-    await revokeToken();
+  function handleLogout() {
+    revokeToken();
     localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
     clearUser();
