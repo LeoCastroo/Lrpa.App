@@ -1,6 +1,7 @@
 import api from "@/service/api";
 import {
   IExecution,
+  IInsightSection,
   IPaginated,
   IPanelItem,
   IPanelSummary,
@@ -69,4 +70,36 @@ async function getDocs(serviceKey: string): Promise<IServiceDocs> {
   return data;
 }
 
-export default { getSummary, getItems, exportItems, getExecutions, getOptions, getDocs };
+async function getInsights(serviceKey: string, params: PanelParams): Promise<IInsightSection[]> {
+  const { data } = await api.get(`/services/${serviceKey}/panel/insights`, {
+    params: clean(params),
+  });
+  return data;
+}
+
+export interface IResolveManuallyResult {
+  resolved: number[];
+  failed: { id: number; error: string }[];
+}
+
+async function resolveManually(
+  serviceKey: string,
+  params: PanelParams,
+  body: { ids: number[]; reason: string }
+): Promise<IResolveManuallyResult> {
+  const { data } = await api.post(`/services/${serviceKey}/panel/items/resolve`, body, {
+    params: clean(params),
+  });
+  return data;
+}
+
+export default {
+  getSummary,
+  getItems,
+  exportItems,
+  getExecutions,
+  getOptions,
+  getDocs,
+  getInsights,
+  resolveManually,
+};

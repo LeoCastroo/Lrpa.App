@@ -37,6 +37,15 @@ export interface IPanelMeta {
   filters: IPanelFilter[];
   failureReasons: { key: string; title: string; kind: FailureKind }[];
   secondaryFailureLabel: string | null;
+  /** Presente quando o painel permite marcar itens com falha como tratados manualmente. */
+  manualResolution: { actionLabel: string } | null;
+  /** Quando true, o serviço tem uma aba "Resultados" própria (GET /panel/insights). */
+  hasInsights: boolean;
+}
+
+export interface IServiceClient {
+  key: string;
+  name: string;
 }
 
 export interface IServiceDefinition {
@@ -44,6 +53,8 @@ export interface IServiceDefinition {
   name: string;
   description: string | null;
   capabilities: IServiceCapabilities;
+  /** Cliente final por trás do RPA (ex.: BMG). Agrupa a navegação. */
+  client: IServiceClient;
   /** Presente quando o serviço recebe importação de planilhas. */
   layout?: { columns: ILayoutColumn[] };
   /** Presente quando o serviço tem painel. */

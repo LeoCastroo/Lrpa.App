@@ -1,14 +1,19 @@
 import {
+  CalendarClock,
   FileDown,
   FileSpreadsheet,
+  FileUp,
+  Gavel,
   LayoutDashboard,
   ListChecks,
   MailCheck,
+  Scale,
   Workflow,
   type LucideIcon,
 } from "lucide-react";
 import * as React from "react";
 
+import { BrandMark } from "@/components/brand-logo";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -18,6 +23,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { groupServicesByClient } from "@/lib/group-by-client";
 import { useServicesStore, useUserStore } from "@/store";
 
 // Novos serviços ganham um ícone padrão sem precisar de código novo.
@@ -26,6 +32,10 @@ const iconByKey: Record<string, LucideIcon> = {
   BMG_WORKFLOWS_BATCH: Workflow,
   BMG_MESSAGES_READ: MailCheck,
   BMG_DOWNLOAD_DOCUMENTS: FileDown,
+  BMG_REGISTER_LAW_SUIT: Scale,
+  BMG_UPLOAD_DOCUMENTS: FileUp,
+  BMG_UPDATES_DEFENSE: Gavel,
+  BMG_UPDATES_AUDIENCES: CalendarClock,
 };
 
 function serviceIcon(key: string): LucideIcon {
@@ -36,22 +46,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useUserStore((s) => s.user);
   const { services, status } = useServicesStore();
 
-  const serviceItems = services.map((s) => ({
-    title: s.name,
-    url: `/services/${s.key}`,
-    icon: serviceIcon(s.key),
-  }));
+  const clientGroups = groupServicesByClient(services);
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <div className="flex items-center gap-2 p-2">
-          <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-            <FileSpreadsheet className="size-4 shrink-0" />
-          </div>
+          <BrandMark className="size-8" />
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-medium">{user.office?.name ?? "LCS"}</span>
-            <span className="truncate text-xs text-muted-foreground">LCS RPA</span>
+            <span className="truncate font-medium">{user.office?.name ?? "LRPA"}</span>
+            <span className="font-display truncate text-xs tracking-wide text-muted-foreground">
+              LRPA
+            </span>
           </div>
         </div>
       </SidebarHeader>
@@ -64,9 +70,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-8 w-full" />
           </div>
-        ) : serviceItems.length ? (
-          <NavMain title="Serviços" items={serviceItems} />
-        ) : null}
+        ) : (
+          // Uma seção por cliente final (ex.: BMG) — um novo cliente ganha a própria seção
+          // automaticamente, sem mudança de código.
+          clientGroups.map(({ client, services: clientServices }) => (
+            <NavMain
+              key={client.key}
+              title={client.name}
+              items={clientServices.map((s) => ({
+                title: s.name,
+                url: `/services/${s.key}`,
+                icon: serviceIcon(s.key),
+              }))}
+            />
+          ))
+        )}
       </SidebarContent>
 
       <SidebarFooter>

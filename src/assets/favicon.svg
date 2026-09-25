@@ -1,0 +1,13 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LRPA">
+  <defs>
+    <linearGradient id="lrpaFavGrad" x1="6" y1="6" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C6BF0"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="#0F0F14"/>
+  <path d="M10 9V19.5C10 21.4 11.6 23 13.5 23H23" stroke="url(#lrpaFavGrad)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="10" cy="9" r="3" fill="#0F0F14" stroke="url(#lrpaFavGrad)" stroke-width="2.2"/>
+  <circle cx="13.5" cy="23" r="2.4" fill="url(#lrpaFavGrad)"/>
+  <circle cx="23" cy="23" r="3" fill="#0F0F14" stroke="#A78BFA" stroke-width="2.2"/>
+</svg>

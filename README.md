@@ -1,6 +1,6 @@
 # LRPA — Portal (Lrpa.App)
 
-Frontend do portal de importações da LCS. O usuário do escritório faz login, vê
+Frontend do portal de importações da LRPA. O usuário do escritório faz login, vê
 apenas os serviços a que tem acesso, lista as importações do seu escritório e
 envia planilhas XLSX validadas contra um layout fixo.
 

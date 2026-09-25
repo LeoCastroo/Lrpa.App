@@ -3,6 +3,7 @@ import Home from "./pages/home";
 import Login from "./pages/login";
 import ServiceIndex from "./pages/services";
 import ServiceOverview from "./pages/services/overview";
+import ServiceResults from "./pages/services/results";
 import ServiceItems from "./pages/services/items";
 import ServiceExecutions from "./pages/services/executions";
 import ServiceDocs from "./pages/services/docs";
@@ -37,6 +38,11 @@ const routes = {
       path: "/services/:serviceKey/overview",
       Page: ServiceOverview,
       title: "Visão geral",
+    },
+    {
+      path: "/services/:serviceKey/results",
+      Page: ServiceResults,
+      title: "Resultados",
     },
     {
       path: "/services/:serviceKey/items",

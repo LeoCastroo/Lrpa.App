@@ -81,3 +81,35 @@ export interface IServiceDocs {
   name: string;
   docs: IRpaDoc;
 }
+
+export interface IInsightMetric {
+  key: string;
+  label: string;
+  value: number;
+  headline?: string;
+  format?: "number" | "percent";
+  percentOf?: number | null;
+}
+
+export interface IInsightBreakdown {
+  key: string;
+  label: string;
+  kind: "ranking" | "distribution";
+  items: { key: string; label: string; value: number }[];
+}
+
+export interface IInsightTimeseries {
+  key: string;
+  label: string;
+  days: string[];
+  series: { key: string; label: string; values: number[] }[];
+}
+
+export interface IInsightSection {
+  key: string;
+  title: string;
+  description: string;
+  metrics: IInsightMetric[];
+  breakdowns: IInsightBreakdown[];
+  timeseries: IInsightTimeseries[];
+}

@@ -1,15 +1,17 @@
 import { ColumnDef, OnChangeFn, PaginationState } from "@tanstack/react-table";
-import { Download, Loader2, X } from "lucide-react";
+import { CheckSquare, Download, Loader2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/api";
 import { ItemStatusBadge } from "@/components/panel/badges";
+import { ManualResolutionDialog } from "@/components/panel/manual-resolution-dialog";
 import { PanelFilters } from "@/components/panel/panel-filters";
 import { PeriodSelect } from "@/components/panel/period-select";
 import { ServicePage } from "@/components/service-hub/service-page";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Select,
@@ -64,6 +66,8 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
   const [data, setData] = useState<IPaginated<IPanelItem> | null>(null);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [resolveOpen, setResolveOpen] = useState(false);
 
   const query = {
     office,
@@ -98,6 +102,7 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
+    setSelected(new Set());
     api.panel
       .getItems(service.key, { ...query, page, limit: PAGE_SIZE }, controller.signal)
       .then(setData)
@@ -108,6 +113,61 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
       .finally(() => setLoading(false));
     return () => controller.abort();
   }, [service.key, queryKey, page]);
+
+  async function refetch() {
+    const result = await api.panel.getItems(service.key, { ...query, page, limit: PAGE_SIZE });
+    setData(result);
+  }
+
+  const manualResolution = panel.manualResolution;
+  const failedIds = useMemo(
+    () => (data?.data ?? []).filter((item) => !item.success).map((item) => item.id),
+    [data]
+  );
+  const allFailedSelected = failedIds.length > 0 && failedIds.every((id) => selected.has(id));
+  const someFailedSelected = failedIds.some((id) => selected.has(id));
+
+  function toggleSelected(id: number, checked: boolean) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  function toggleAllFailed(checked: boolean) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      for (const id of failedIds) {
+        if (checked) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  async function handleResolveConfirm(reason: string) {
+    const ids = [...selected];
+    try {
+      const result = await api.panel.resolveManually(service.key, { office }, { ids, reason });
+      if (result.resolved.length > 0) {
+        toast.success(
+          `${result.resolved.length} ${result.resolved.length === 1 ? panel.unit.singular : panel.unit.plural} marcado(s) como tratado manualmente.`
+        );
+      }
+      if (result.failed.length > 0) {
+        toast.error(
+          `${result.failed.length} item(ns) não puderam ser tratados (podem já ter sido resolvidos).`
+        );
+      }
+      setSelected(new Set());
+      await refetch();
+    } catch (error) {
+      toast.error(await errorMessage(error, "Não foi possível concluir o tratamento manual."));
+      throw error;
+    }
+  }
 
   async function handleExport() {
     setExporting(true);
@@ -154,8 +214,31 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
           ),
       }
     );
+    if (manualResolution) {
+      cols.unshift({
+        id: "__select",
+        enableSorting: false,
+        header: () =>
+          failedIds.length > 0 ? (
+            <Checkbox
+              checked={allFailedSelected ? true : someFailedSelected ? "indeterminate" : false}
+              onCheckedChange={(value) => toggleAllFailed(!!value)}
+              aria-label="Selecionar todas as falhas desta página"
+            />
+          ) : null,
+        cell: ({ row }) =>
+          row.original.success ? null : (
+            <Checkbox
+              checked={selected.has(row.original.id)}
+              onCheckedChange={(value) => toggleSelected(row.original.id, !!value)}
+              aria-label="Selecionar item"
+            />
+          ),
+      });
+    }
     return cols;
-  }, [panel]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [panel, manualResolution, selected, failedIds, allFailedSelected, someFailedSelected]);
 
   const pagination: PaginationState = { pageIndex: page - 1, pageSize: PAGE_SIZE };
   const onPaginationChange: OnChangeFn<PaginationState> = (updater) => {
@@ -200,7 +283,13 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
             <SelectItem value="attempts">Todas as tentativas</SelectItem>
           </SelectContent>
         </Select>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          {manualResolution && selected.size > 0 && (
+            <Button onClick={() => setResolveOpen(true)}>
+              <CheckSquare className="size-4" />
+              {manualResolution.actionLabel} ({selected.size})
+            </Button>
+          )}
           <Button variant="outline" onClick={handleExport} disabled={exporting}>
             {exporting ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
             Exportar (.xlsx)
@@ -241,6 +330,17 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
         onSortingChange={() => {}}
         isLoading={loading}
       />
+
+      {manualResolution && (
+        <ManualResolutionDialog
+          open={resolveOpen}
+          onOpenChange={setResolveOpen}
+          count={selected.size}
+          unit={panel.unit}
+          actionLabel={manualResolution.actionLabel}
+          onConfirm={handleResolveConfirm}
+        />
+      )}
     </div>
   );
 }

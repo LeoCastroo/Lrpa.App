@@ -40,7 +40,12 @@ export function PanelFilters({
     for (const filter of filters.filter((f) => f.input === "select")) {
       api.panel
         .getOptions(serviceKey, filter.key, { office })
-        .then((list) => setOptions((prev) => ({ ...prev, [filter.key]: list })))
+        // Defesa extra: um Select do Radix não aceita item com value="" (reservado para "sem
+        // seleção"), então qualquer opção vazia/só espaços vinda da API é descartada aqui.
+        .then((list) => {
+          const clean = list.filter((o) => o.trim() !== "");
+          setOptions((prev) => ({ ...prev, [filter.key]: clean }));
+        })
         .catch(() => {});
     }
   }, [serviceKey, office]);

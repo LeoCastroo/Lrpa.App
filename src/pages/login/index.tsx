@@ -27,7 +27,15 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+    <div className="relative flex min-h-svh w-full items-center justify-center overflow-hidden p-6 md:p-10">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(600px 400px at 50% -10%, color-mix(in oklch, var(--primary) 16%, transparent), transparent 70%)",
+        }}
+      />
       <div className="w-full max-w-sm">
         <LoginForm />
       </div>

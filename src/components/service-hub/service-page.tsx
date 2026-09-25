@@ -15,7 +15,7 @@ import { useService } from "@/hooks/use-service";
 import { cn } from "@/lib/utils";
 import { IServiceCapabilities, IServiceDefinition } from "@/service/types/Service";
 
-type TabKey = "overview" | "items" | "executions" | "docs" | "imports";
+type TabKey = "overview" | "results" | "items" | "executions" | "docs" | "imports";
 
 interface TabDef {
   key: TabKey;
@@ -29,6 +29,11 @@ function capitalize(text: string): string {
 
 const TABS: TabDef[] = [
   { key: "overview", label: () => "Visão geral", visible: (s) => s.capabilities.panel },
+  {
+    key: "results",
+    label: () => "Resultados",
+    visible: (s) => s.capabilities.panel && Boolean(s.panel?.hasInsights),
+  },
   {
     key: "items",
     label: (s) => capitalize(s.panel?.unit.plural ?? "Itens"),

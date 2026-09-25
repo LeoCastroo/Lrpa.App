@@ -10,7 +10,7 @@
   --card-foreground: oklch(0.2103 0 267.51);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0 0 0);
-  --primary: oklch(0.5144 0.1605 267.44);
+  --primary: #7c6bf0;
   --primary-foreground: oklch(0.97 0.014 254.604);
   --secondary: oklch(0.94 0 0);
   --secondary-foreground: oklch(0.25 0 0);
@@ -22,21 +22,26 @@
   --destructive-foreground: oklch(0.97 0.014 254.604);
   --border: oklch(0.92 0 0);
   --input: oklch(0.94 0 0);
-  --ring: oklch(0.5144 0.1605 267.44);
+  --ring: #7c6bf0;
   --chart-1: oklch(0.9214 0.0248 257.65);
   --chart-2: oklch(0.7597 0.0804 267.01);
   --chart-3: oklch(0.6083 0.1247 272.72);
-  --chart-4: oklch(0.5144 0.1605 267.44);
+  --chart-4: #7c6bf0;
   --chart-5: oklch(0.2571 0.1161 272.24);
   --sidebar: oklch(1 0 267.51);
   --sidebar-foreground: oklch(0 0 0);
-  --sidebar-primary: oklch(0.5144 0.1605 267.44);
+  --sidebar-primary: #7c6bf0;
   --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
   --sidebar-accent: oklch(0.9214 0.0248 257.65);
   --sidebar-accent-foreground: oklch(0.2571 0.1161 272.24);
   --sidebar-border: oklch(0.92 0 0);
-  --sidebar-ring: oklch(0.5144 0.1605 267.44);
-  --font-sans: Geist, sans-serif;
+  --sidebar-ring: #7c6bf0;
+  /* Marca LRPA: Inter para toda a interface (já carregada no index.html — "Geist" nunca chegou
+     a ser carregada aqui, então a UI estava caindo silenciosamente para a fonte padrão do SO).
+     Space Grotesk fica reservado a momentos de marca (logo, títulos de destaque) — ver
+     `font-display`; o sistema não deve ter a mesma voz tipográfica da landpage. */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
   --font-serif: Noto Serif Georgian, ui-serif, serif;
   --font-mono: Geist Mono, monospace;
   --radius: 0.5rem;
@@ -75,7 +80,7 @@
   --card-foreground: oklch(0.9461 0 0);
   --popover: oklch(0.2103 0 267.51);
   --popover-foreground: oklch(1 0 0);
-  --primary: oklch(0.5144 0.1605 267.44);
+  --primary: #8b7cf6;
   --primary-foreground: oklch(0.97 0.014 254.604);
   --secondary: oklch(0.25 0 0);
   --secondary-foreground: oklch(0.94 0 0);
@@ -87,21 +92,22 @@
   --destructive-foreground: oklch(0.97 0.014 254.604);
   --border: oklch(0.26 0 0);
   --input: oklch(0.32 0 0);
-  --ring: oklch(0.5144 0.1605 267.44);
+  --ring: #8b7cf6;
   --chart-1: oklch(0.9214 0.0248 257.65);
   --chart-2: oklch(0.7597 0.0804 267.01);
   --chart-3: oklch(0.6083 0.1247 272.72);
-  --chart-4: oklch(0.5144 0.1605 267.44);
+  --chart-4: #8b7cf6;
   --chart-5: oklch(0.2571 0.1161 272.24);
   --sidebar: oklch(0.2103 0 267.51);
   --sidebar-foreground: oklch(1 0 0);
-  --sidebar-primary: oklch(0.5144 0.1605 267.44);
+  --sidebar-primary: #8b7cf6;
   --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
   --sidebar-accent: oklch(0.32 0 0);
   --sidebar-accent-foreground: oklch(0.9214 0.0248 257.65);
   --sidebar-border: oklch(0.26 0 0);
-  --sidebar-ring: oklch(0.5144 0.1605 267.44);
-  --font-sans: Geist, sans-serif;
+  --sidebar-ring: #8b7cf6;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
   --font-serif: Noto Serif Georgian, ui-serif, serif;
   --font-mono: Geist Mono, monospace;
   --radius: 0.5rem;
@@ -168,6 +174,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
+  --font-display: var(--font-display);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

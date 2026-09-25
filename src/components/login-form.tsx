@@ -1,4 +1,5 @@
 import api from "@/api";
+import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -69,8 +70,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="shadow-2xl">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center">LCS RPA</CardTitle>
+        <CardHeader className="text-center">
+          <BrandLogo
+            className="mb-2 justify-center"
+            markClassName="size-11"
+            textClassName="text-2xl"
+          />
           <CardTitle className="text-lg">Entrar</CardTitle>
           <CardDescription>
             Informe seu e-mail e senha para acessar o portal
@@ -119,7 +124,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 href="mailto:leonardo.santos@totalacesso.com.br"
                 className="underline underline-offset-4"
               >
-                Fale com a LCS
+                Fale com a LRPA
               </a>
             </div>
           </form>
