@@ -98,9 +98,8 @@ local.interceptors.response.use(
   (err) => responseError(err)
 );
 
-// TODO: ajustar para o domínio de produção da API LRPA quando definido.
 const live = axios.create({
-  baseURL: `https://${apiPrefix}.lrpa.totalacesso.com.br`,
+  baseURL: `https://${apiPrefix}.lrpa.com.br`,
 });
 
 live.interceptors.request.use(refreshTokenInterceptor, (err) => Promise.reject(err));

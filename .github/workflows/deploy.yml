@@ -1,0 +1,56 @@
+name: Deploy
+
+# "Merge na main" = este evento. Sem gatilho manual/PR — só push (direto ou por merge) em main.
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-lrpa-app
+  cancel-in-progress: false
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    env:
+      # Faz src/service/api.ts resolver para https://api.lrpa.com.br (não api-hml...).
+      APP_ENV: prd
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+      - name: Configurar SSH
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Enviar release e ativar
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          APP_ROOT="/var/www/app.lrpa.com.br"
+          RELEASE_DIR="$APP_ROOT/releases/${GITHUB_SHA}"
+          SSH="ssh -i ~/.ssh/deploy_key $USER@$HOST"
+
+          $SSH "mkdir -p $RELEASE_DIR"
+          rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" dist/ "$USER@$HOST:$RELEASE_DIR/"
+          rsync -az -e "ssh -i ~/.ssh/deploy_key" deploy/remote-deploy.sh "$USER@$HOST:$APP_ROOT/remote-deploy.sh"
+          $SSH "bash $APP_ROOT/remote-deploy.sh $RELEASE_DIR"
+
+      - name: Smoke test
+        run: curl -fsS https://app.lrpa.com.br > /dev/null
