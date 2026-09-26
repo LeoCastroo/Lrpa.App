@@ -6,6 +6,7 @@ import {
   Gavel,
   LayoutDashboard,
   ListChecks,
+  ListTodo,
   MailCheck,
   ReceiptText,
   Scale,
@@ -69,7 +70,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain items={[{ title: "Início", url: "/", icon: LayoutDashboard }]} />
+        <NavMain
+          items={[
+            { title: "Início", url: "/", icon: LayoutDashboard },
+            { title: "Central de Pendências", url: "/pendencies", icon: ListTodo },
+          ]}
+        />
 
         {status === "loading" ? (
           <div className="flex flex-col gap-2 px-2">

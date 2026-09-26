@@ -1,5 +1,6 @@
 import Account from "./pages/account";
 import Home from "./pages/home";
+import Pendencies from "./pages/pendencies";
 import Login from "./pages/login";
 import ForgotPassword from "./pages/forgot-password";
 import ResetPassword from "./pages/reset-password";
@@ -33,6 +34,11 @@ const routes = {
       path: "/",
       Page: Home,
       title: "Início",
+    },
+    {
+      path: "/pendencies",
+      Page: Pendencies,
+      title: "Central de Pendências",
     },
     {
       path: "/account",
