@@ -21,8 +21,14 @@ interface ManualResolutionDialogProps {
   count: number;
   unit: { singular: string; plural: string };
   actionLabel: string;
+  /** Alerta específico do serviço (ex.: conferir duplicidade antes de confirmar). */
+  warning?: string | null;
   onConfirm: (reason: string) => Promise<void>;
 }
+
+const DEFAULT_WARNING =
+  "Essa ação é definitiva do lado do robô: uma vez marcado, o item nunca mais será " +
+  "reprocessado automaticamente.";
 
 export function ManualResolutionDialog({
   open,
@@ -30,6 +36,7 @@ export function ManualResolutionDialog({
   count,
   unit,
   actionLabel,
+  warning,
   onConfirm,
 }: ManualResolutionDialogProps) {
   const [reason, setReason] = useState("");
@@ -71,10 +78,7 @@ export function ManualResolutionDialog({
 
         <Alert variant="warning">
           <AlertTriangle />
-          <AlertDescription>
-            Essa ação é definitiva do lado do robô: uma vez marcado, o item nunca mais será
-            reprocessado automaticamente.
-          </AlertDescription>
+          <AlertDescription>{warning || DEFAULT_WARNING}</AlertDescription>
         </Alert>
 
         <div className="grid gap-2">

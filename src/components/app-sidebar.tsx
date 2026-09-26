@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   ListChecks,
   MailCheck,
+  ReceiptText,
   Scale,
   Workflow,
   type LucideIcon,
@@ -36,6 +37,11 @@ const iconByKey: Record<string, LucideIcon> = {
   BMG_UPLOAD_DOCUMENTS: FileUp,
   BMG_UPDATES_DEFENSE: Gavel,
   BMG_UPDATES_AUDIENCES: CalendarClock,
+  MERCANTIL_REGISTER_LAW_SUIT: Scale,
+  MERCANTIL_UPDATES: Gavel,
+  MERCANTIL_UPLOAD_DOCUMENTS: FileUp,
+  MERCANTIL_REFUNDS: ReceiptText,
+  MERCANTIL_BATCH_UPDATES: ListChecks,
 };
 
 function serviceIcon(key: string): LucideIcon {

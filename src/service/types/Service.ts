@@ -19,7 +19,7 @@ export type FailureKind = "temporaria" | "permanente" | "correcao";
 export interface IPanelField {
   key: string;
   label: string;
-  type: "text" | "number" | "datetime" | "boolean";
+  type: "text" | "number" | "datetime" | "boolean" | "currency";
   table: boolean;
   export: boolean;
 }
@@ -38,7 +38,7 @@ export interface IPanelMeta {
   failureReasons: { key: string; title: string; kind: FailureKind }[];
   secondaryFailureLabel: string | null;
   /** Presente quando o painel permite marcar itens com falha como tratados manualmente. */
-  manualResolution: { actionLabel: string } | null;
+  manualResolution: { actionLabel: string; warning: string | null } | null;
   /** Quando true, o serviço tem uma aba "Resultados" própria (GET /panel/insights). */
   hasInsights: boolean;
 }

@@ -29,11 +29,18 @@ import { IPanelField, IServiceDefinition } from "@/service/types/Service";
 const PAGE_SIZE = 25;
 const ALL = "all";
 
+const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
+function formatCurrency(value: number) {
+  return Number.isFinite(value) ? currencyFormatter.format(value) : "—";
+}
+
 function renderValue(field: IPanelField, value: unknown) {
   if (value === null || value === undefined || value === "") return "—";
   if (field.type === "datetime") return formatDateTime(String(value));
   if (field.type === "boolean") return value ? "Sim" : "Não";
   if (field.type === "number") return String(value);
+  if (field.type === "currency") return formatCurrency(Number(value));
   return <span className="block max-w-[280px] truncate" title={String(value)}>{String(value)}</span>;
 }
 
@@ -338,6 +345,7 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
           count={selected.size}
           unit={panel.unit}
           actionLabel={manualResolution.actionLabel}
+          warning={manualResolution.warning}
           onConfirm={handleResolveConfirm}
         />
       )}
