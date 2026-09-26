@@ -5,6 +5,7 @@ import {
   FileUp,
   Gavel,
   ListChecks,
+  ListTodo,
   MailCheck,
   ReceiptText,
   Scale,
@@ -39,6 +40,12 @@ const iconByKey: Record<string, LucideIcon> = {
   MERCANTIL_UPLOAD_DOCUMENTS: FileUp,
   MERCANTIL_REFUNDS: ReceiptText,
   MERCANTIL_BATCH_UPDATES: ListChecks,
+  INTER_REGISTER_LAW_SUIT: Scale,
+  INTER_UPLOAD_DOCUMENTS: FileUp,
+  INTER_REFUNDS: ReceiptText,
+  INTER_TASKS: ListTodo,
+  INTER_UPDATES: ListChecks,
+  INTER_APPEAL_TASKS: Gavel,
 };
 
 export default function Page() {
