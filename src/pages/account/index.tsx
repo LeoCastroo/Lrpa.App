@@ -8,6 +8,7 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { ChangePasswordCard } from "@/components/change-password-card";
 import { Theme, useTheme } from "@/hooks/use-theme";
 import { useUserStore } from "@/store";
 
@@ -58,6 +59,8 @@ export default function Page() {
           </Field>
         </CardContent>
       </Card>
+
+      <ChangePasswordCard />
 
       <Card className="mt-6">
         <CardHeader>

@@ -16,9 +16,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import z from "zod";
+import { apiErrorMessage, SUPPORT_EMAIL } from "@/lib/password-policy";
 import { PasswordInput } from "./password-input";
 import { Label } from "./ui/label";
 
@@ -59,9 +60,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
       await navigate("/");
     } catch (error: any) {
-      const message =
-        error.response?.data?.message || "Erro ao fazer login. Tente novamente.";
-      toast.error(message);
+      toast.error(apiErrorMessage(error, "Erro ao fazer login. Tente novamente."));
     } finally {
       setIsLoading(false);
     }
@@ -97,7 +96,15 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 )}
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Senha</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Senha</Label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+                  >
+                    Esqueci minha senha
+                  </Link>
+                </div>
                 <PasswordInput
                   id="password"
                   {...register("password")}
@@ -121,7 +128,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
             <div className="mt-4 text-center text-sm">
               Problemas para acessar?{" "}
               <a
-                href="mailto:leonardo.santos@totalacesso.com.br"
+                href={`mailto:${SUPPORT_EMAIL}`}
                 className="underline underline-offset-4"
               >
                 Fale com a LRPA

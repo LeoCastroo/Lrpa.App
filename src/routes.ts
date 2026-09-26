@@ -1,6 +1,8 @@
 import Account from "./pages/account";
 import Home from "./pages/home";
 import Login from "./pages/login";
+import ForgotPassword from "./pages/forgot-password";
+import ResetPassword from "./pages/reset-password";
 import ServiceIndex from "./pages/services";
 import ServiceOverview from "./pages/services/overview";
 import ServiceResults from "./pages/services/results";
@@ -16,6 +18,14 @@ const routes = {
     {
       path: "/login",
       Page: Login,
+    },
+    {
+      path: "/forgot-password",
+      Page: ForgotPassword,
+    },
+    {
+      path: "/reset-password",
+      Page: ResetPassword,
     },
   ],
   private: [

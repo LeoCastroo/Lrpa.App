@@ -2,30 +2,23 @@ import dayjs from "dayjs";
 import { jwtDecode } from "jwt-decode";
 import api from "./api";
 
+/** Renova um pouco antes de expirar, para a requisição não chegar com o token vencido. */
+const REFRESH_MARGIN_SECONDS = 30;
+
 export function checkToken(): boolean {
   const token = localStorage.getItem("token");
-  if (!token) {
-    return false;
-  }
-
-  const decoded = jwtDecode(token);
-  if (!decoded?.exp) {
-    return false;
-  }
-
   const refresh_token = localStorage.getItem("refresh_token");
-  if (!refresh_token) {
+  if (!token || !refresh_token) {
     return false;
   }
 
-  const expires = decoded.exp * 1000;
-  const liveToken = dayjs(expires).diff(dayjs(), "second") * 0.9 > 0;
-
-  if (!liveToken) {
+  try {
+    const decoded = jwtDecode(token);
+    if (!decoded?.exp) return false;
+    return dayjs(decoded.exp * 1000).diff(dayjs(), "second") > REFRESH_MARGIN_SECONDS;
+  } catch {
     return false;
   }
-
-  return true;
 }
 
 export async function getNewToken() {
@@ -55,4 +48,13 @@ export async function revokeToken() {
   } catch {
     // logout deve prosseguir mesmo se a revogação falhar
   }
+}
+
+export async function requestPasswordReset(email: string): Promise<string> {
+  const { data } = await api.post("/password/forgot", { email });
+  return data?.message;
+}
+
+export async function resetPassword(token: string, new_password: string): Promise<void> {
+  await api.post("/password/reset", { token, new_password });
 }

@@ -4,37 +4,45 @@ import { checkToken, getNewToken } from "./authentication";
 const env = process.env.APP_ENV ?? "hml";
 const apiPrefix = env == "prd" ? "api" : `api-${env}`;
 
-const local = axios.create({
-  baseURL: `http://localhost:3001`,
-});
+/** Rotas que não usam o access token (nem tentam renová-lo). */
+const AUTH_ROUTES = ["/login", "/token/refresh", "/token/revoke", "/password/forgot", "/password/reset"];
+/** Páginas que funcionam sem sessão — nelas um 401 não redireciona. */
+const PUBLIC_PAGES = ["/login", "/forgot-password", "/reset-password"];
 
-const delay = (time: number) => new Promise((resolve) => setTimeout(resolve, time));
+function isAuthRoute(url?: string) {
+  return AUTH_ROUTES.includes(url ?? "");
+}
 
-local.interceptors.response.use(
-  async (response) => {
-    await delay(300);
-    return response;
-  },
-  async (error) => {
-    await delay(300);
-    return Promise.reject(error);
+/**
+ * Sessão encerrada (refresh recusado ou 401 em rota autenticada): limpa tudo e volta para o
+ * login com o aviso. Recarregar a página zera também o estado em memória.
+ */
+function endSession() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("user-storage");
+  if (!PUBLIC_PAGES.includes(window.location.pathname)) {
+    window.location.assign("/login?sessao=expirada");
   }
-);
+}
 
-let isRefreshing = false;
-let refreshTokenPromise: any = null;
-let pendingRequests: any[] = [];
-
+/**
+ * Erro de rede (API fora do ar, sem internet) NÃO desloga nem recarrega: a chamada falha e a
+ * tela mostra o erro — antes isso virava um loop de recarregamento com o token ainda válido.
+ */
 const responseError = (error: any) => {
-  if (error.code.includes("ERR_NETWORK") && !window.location.pathname.includes("/login")) {
-    window.location.assign("/login");
-    return;
+  if (error?.response?.status === 401 && !isAuthRoute(error.config?.url)) {
+    endSession();
   }
   return Promise.reject(error);
 };
 
+let isRefreshing = false;
+let refreshTokenPromise: Promise<void> | null = null;
+let pendingRequests: { resolve: (token: string) => void; reject: (e: unknown) => void }[] = [];
+
 const refreshTokenInterceptor = async (req: any) => {
-  if (["/token/refresh", "/login", "/password/recover"].includes(req.url)) {
+  if (isAuthRoute(req.url)) {
     return req;
   }
 
@@ -45,21 +53,14 @@ const refreshTokenInterceptor = async (req: any) => {
       .then((data) => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("refresh_token", data.refresh_token);
-
-        pendingRequests.forEach(({ resolve }) => {
-          resolve(data.token);
-        });
-        pendingRequests = [];
+        pendingRequests.forEach(({ resolve }) => resolve(data.token));
       })
       .catch((e) => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("refresh_token");
-        pendingRequests.forEach(({ reject }) => {
-          reject(e);
-        });
-        pendingRequests = [];
+        pendingRequests.forEach(({ reject }) => reject(e));
+        endSession();
       })
       .finally(() => {
+        pendingRequests = [];
         isRefreshing = false;
         refreshTokenPromise = null;
       });
@@ -68,10 +69,7 @@ const refreshTokenInterceptor = async (req: any) => {
   if (refreshTokenPromise) {
     return new Promise((resolve, reject) => {
       pendingRequests.push({
-        resolve: (token: any) => {
-          if (req.url?.includes("/token")) {
-            req.data.token = token;
-          }
+        resolve: (token) => {
           req.headers["Authorization"] = `Bearer ${token}`;
           resolve(req);
         },
@@ -84,29 +82,18 @@ const refreshTokenInterceptor = async (req: any) => {
   return req;
 };
 
-local.interceptors.request.use(refreshTokenInterceptor, (err) => Promise.reject(err));
-local.interceptors.response.use(
-  (response) => {
-    if (window.location.pathname !== "/login" && response.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("refresh_token");
-      window.location.replace("/login");
-    }
-
-    return response;
-  },
-  (err) => responseError(err)
-);
+const local = axios.create({
+  baseURL: `http://localhost:3001`,
+});
 
 const live = axios.create({
   baseURL: `https://${apiPrefix}.lrpa.com.br`,
 });
 
-live.interceptors.request.use(refreshTokenInterceptor, (err) => Promise.reject(err));
-live.interceptors.response.use(
-  (response) => response,
-  (err) => responseError(err)
-);
+for (const instance of [local, live]) {
+  instance.interceptors.request.use(refreshTokenInterceptor, (err) => Promise.reject(err));
+  instance.interceptors.response.use((response) => response, responseError);
+}
 
 const api = process.env.NODE_ENV === "production" ? live : local;
 

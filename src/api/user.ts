@@ -6,4 +6,8 @@ async function getMe(): Promise<IUserContext> {
   return data;
 }
 
-export default { getMe };
+async function changePassword(current_password: string, new_password: string): Promise<void> {
+  await api.post(`/me/password`, { current_password, new_password });
+}
+
+export default { getMe, changePassword };

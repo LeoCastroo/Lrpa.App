@@ -3,10 +3,12 @@ import { Spinner } from "@/components/ui/spinner";
 import { checkToken } from "@/service/authentication";
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function Page() {
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
@@ -15,6 +17,10 @@ export default function Page() {
       return;
     }
 
+    if (params.get("sessao") === "expirada") {
+      toast.info("Sua sessão expirou. Entre novamente.");
+      setParams({}, { replace: true });
+    }
     setIsChecking(false);
   }, []);
 
