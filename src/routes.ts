@@ -13,6 +13,7 @@ import ServiceDocs from "./pages/services/docs";
 import ImportList from "./pages/services/imports";
 import ImportNew from "./pages/services/imports/new";
 import ImportDetails from "./pages/services/imports/details";
+import Users from "./pages/users";
 
 const routes = {
   public: [
@@ -39,6 +40,11 @@ const routes = {
       path: "/pendencies",
       Page: Pendencies,
       title: "Central de Pendências",
+    },
+    {
+      path: "/users",
+      Page: Users,
+      title: "Usuários",
     },
     {
       path: "/account",

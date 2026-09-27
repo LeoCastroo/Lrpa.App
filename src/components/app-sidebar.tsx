@@ -10,6 +10,7 @@ import {
   MailCheck,
   ReceiptText,
   Scale,
+  Users,
   Workflow,
   type LucideIcon,
 } from "lucide-react";
@@ -80,6 +81,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           items={[
             { title: "Início", url: "/", icon: LayoutDashboard },
             { title: "Central de Pendências", url: "/pendencies", icon: ListTodo },
+            ...(user.role === "ADMIN"
+              ? [{ title: "Usuários", url: "/users", icon: Users }]
+              : []),
           ]}
         />
 

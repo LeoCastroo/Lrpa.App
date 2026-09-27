@@ -3,6 +3,7 @@ import { default as services } from "./services";
 import { default as imports } from "./imports";
 import { default as panel } from "./panel";
 import { default as pendencies } from "./pendencies";
+import { default as users } from "./users";
 
 export interface Pagination {
   page: number;
@@ -17,4 +18,5 @@ export default {
   imports,
   panel,
   pendencies,
+  users,
 };
