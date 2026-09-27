@@ -1,5 +1,6 @@
 import {
   CalendarClock,
+  Database,
   FileDown,
   FileSpreadsheet,
   FileUp,
@@ -46,6 +47,9 @@ const iconByKey: Record<string, LucideIcon> = {
   INTER_TASKS: ListTodo,
   INTER_UPDATES: ListChecks,
   INTER_APPEAL_TASKS: Gavel,
+  BMG_CITE_SE_PRAZOS: CalendarClock,
+  BMG_CITE_SE_COPIA_INTEGRAL: FileDown,
+  BMG_CITE_SE_LAKE: Database,
 };
 
 export default function Page() {

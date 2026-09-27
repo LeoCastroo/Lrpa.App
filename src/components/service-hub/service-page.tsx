@@ -15,7 +15,7 @@ import { useService } from "@/hooks/use-service";
 import { cn } from "@/lib/utils";
 import { IServiceCapabilities, IServiceDefinition } from "@/service/types/Service";
 
-type TabKey = "overview" | "results" | "items" | "executions" | "docs" | "imports";
+type TabKey = "overview" | "results" | "items" | "executions" | "docs" | "imports" | "jurimetria" | "processos";
 
 interface TabDef {
   key: TabKey;
@@ -34,10 +34,16 @@ const TABS: TabDef[] = [
     label: () => "Resultados",
     visible: (s) => s.capabilities.panel && Boolean(s.panel?.hasInsights),
   },
+  { key: "jurimetria", label: () => "Jurimetria", visible: (s) => s.capabilities.lake },
   {
     key: "items",
     label: (s) => capitalize(s.panel?.unit.plural ?? "Itens"),
     visible: (s) => s.capabilities.panel,
+  },
+  {
+    key: "processos",
+    label: (s) => capitalize(s.lake?.unit.plural ?? "Processos"),
+    visible: (s) => s.capabilities.lake,
   },
   { key: "executions", label: () => "Execuções", visible: (s) => s.capabilities.panel },
   { key: "docs", label: () => "Documentação", visible: (s) => s.capabilities.docs },

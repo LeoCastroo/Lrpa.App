@@ -14,6 +14,9 @@ import ImportList from "./pages/services/imports";
 import ImportNew from "./pages/services/imports/new";
 import ImportDetails from "./pages/services/imports/details";
 import Users from "./pages/users";
+import ServiceJurimetria from "./pages/services/jurimetria";
+import ServiceProcessos from "./pages/services/processos";
+import ServiceProcessoDetails from "./pages/services/processos/details";
 
 const routes = {
   public: [
@@ -75,6 +78,21 @@ const routes = {
       path: "/services/:serviceKey/executions",
       Page: ServiceExecutions,
       title: "Execuções",
+    },
+    {
+      path: "/services/:serviceKey/jurimetria",
+      Page: ServiceJurimetria,
+      title: "Jurimetria",
+    },
+    {
+      path: "/services/:serviceKey/processos",
+      Page: ServiceProcessos,
+      title: "Processos",
+    },
+    {
+      path: "/services/:serviceKey/processos/:id",
+      Page: ServiceProcessoDetails,
+      title: "Processo",
     },
     {
       path: "/services/:serviceKey/docs",

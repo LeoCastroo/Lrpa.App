@@ -12,6 +12,7 @@ export interface IServiceCapabilities {
   import: boolean;
   panel: boolean;
   docs: boolean;
+  lake: boolean;
 }
 
 export type FailureKind = "temporaria" | "permanente" | "correcao";
@@ -43,6 +44,12 @@ export interface IPanelMeta {
   hasInsights: boolean;
 }
 
+export interface ILakeMeta {
+  unit: { singular: string; plural: string };
+  fields: IPanelField[];
+  filters: IPanelFilter[];
+}
+
 export interface IServiceClient {
   key: string;
   name: string;
@@ -59,6 +66,8 @@ export interface IServiceDefinition {
   layout?: { columns: ILayoutColumn[] };
   /** Presente quando o serviço tem painel. */
   panel?: IPanelMeta;
+  /** Presente quando o serviço tem lake de processos (PROJETO CITE-SE). */
+  lake?: ILakeMeta;
   /** Só para ADMIN: escritórios que contrataram o serviço. */
   offices?: { rpa_code: string; name: string }[];
 }
