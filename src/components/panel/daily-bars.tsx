@@ -18,13 +18,13 @@ export function DailyBars({ daily }: { daily: IPanelSummary["daily"] }) {
             <div className="w-full h-32 flex flex-col justify-end">
               {d.fail > 0 && (
                 <div
-                  className="w-full bg-red-500/70 rounded-t-sm"
+                  className="w-full bg-destructive/70 rounded-t-sm"
                   style={{ height: `${(d.fail / max) * 100}%` }}
                 />
               )}
               {d.ok > 0 && (
                 <div
-                  className={`w-full bg-green-600/70 ${d.fail > 0 ? "" : "rounded-t-sm"}`}
+                  className={`w-full bg-success/70 ${d.fail > 0 ? "" : "rounded-t-sm"}`}
                   style={{ height: `${(d.ok / max) * 100}%` }}
                 />
               )}
@@ -37,10 +37,10 @@ export function DailyBars({ daily }: { daily: IPanelSummary["daily"] }) {
       </div>
       <div className="flex gap-4 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
-          <span className="size-2.5 rounded-sm bg-green-600/70" /> Sucesso
+          <span className="size-2.5 rounded-sm bg-success/70" /> Sucesso
         </span>
         <span className="flex items-center gap-1">
-          <span className="size-2.5 rounded-sm bg-red-500/70" /> Falha
+          <span className="size-2.5 rounded-sm bg-destructive/70" /> Falha
         </span>
       </div>
     </div>

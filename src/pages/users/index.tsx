@@ -168,7 +168,7 @@ function CreateUserDialog({
       }}
     >
       <DialogTrigger asChild>
-        <Button>
+        <Button className="w-full sm:w-auto">
           <Plus className="size-4" /> Novo usuário
         </Button>
       </DialogTrigger>
@@ -332,9 +332,9 @@ export default function Page() {
             Controle quais serviços cada usuário do escritório pode acessar.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <Select value={office ?? ""} onValueChange={setOffice}>
-            <SelectTrigger className="w-56 bg-card">
+            <SelectTrigger className="w-full sm:w-56 bg-card">
               <SelectValue placeholder="Selecione o escritório" />
             </SelectTrigger>
             <SelectContent>
@@ -371,40 +371,42 @@ export default function Page() {
               Nenhum usuário cadastrado neste escritório ainda.
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>E-mail</TableHead>
-                  <TableHead>Serviços</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell>{u.name}</TableCell>
-                    <TableCell>{u.email}</TableCell>
-                    <TableCell>
-                      {u.serviceKeys.length} serviço{u.serviceKeys.length === 1 ? "" : "s"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={u.status === "ACTIVE" ? "default" : "outline"}>
-                        {u.status === "ACTIVE" ? "Ativo" : u.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <EditServicesDialog
-                        user={u}
-                        officeServices={officeServices}
-                        onSaved={load}
-                      />
-                    </TableCell>
+            <div className="rounded-md border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>E-mail</TableHead>
+                    <TableHead>Serviços</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead />
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {users.map((u) => (
+                    <TableRow key={u.id}>
+                      <TableCell className="whitespace-nowrap">{u.name}</TableCell>
+                      <TableCell className="whitespace-nowrap">{u.email}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {u.serviceKeys.length} serviço{u.serviceKeys.length === 1 ? "" : "s"}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={u.status === "ACTIVE" ? "default" : "outline"}>
+                          {u.status === "ACTIVE" ? "Ativo" : u.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <EditServicesDialog
+                          user={u}
+                          officeServices={officeServices}
+                          onSaved={load}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -60,9 +60,7 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
         header: "Com sucesso",
         enableSorting: false,
         cell: ({ row }) => (
-          <span className="tabular-nums text-green-700 dark:text-green-400">
-            {formatNumber(row.original.ok)}
-          </span>
+          <span className="tabular-nums text-success">{formatNumber(row.original.ok)}</span>
         ),
       },
       {
@@ -70,9 +68,7 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
         header: "Com falha",
         enableSorting: false,
         cell: ({ row }) => (
-          <span className="tabular-nums text-red-700 dark:text-red-400">
-            {formatNumber(row.original.fail)}
-          </span>
+          <span className="tabular-nums text-destructive">{formatNumber(row.original.fail)}</span>
         ),
       },
     ];

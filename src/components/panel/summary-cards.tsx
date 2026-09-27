@@ -37,19 +37,19 @@ export function LastExecutionCard({
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Com sucesso</p>
-                <p className="text-green-700 dark:text-green-400">
+                <p className="text-success">
                   {formatNumber(execution.ok)} {unitPlural}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Com falha</p>
-                <p className="text-red-700 dark:text-red-400">
+                <p className="text-destructive">
                   {formatNumber(execution.fail)} {unitPlural}
                 </p>
               </div>
             </div>
             {execution.error && (
-              <p className="rounded-md bg-red-500/10 p-2 text-sm text-red-700 dark:text-red-400">
+              <p className="rounded-md bg-destructive/10 p-2 text-sm text-destructive">
                 {execution.error}
               </p>
             )}
@@ -80,22 +80,22 @@ const KPI_TONES: Record<KpiTone, { chip: string; icon: string; value: string; bo
     border: "border-l-primary/70",
   },
   ok: {
-    chip: "bg-green-500/15",
-    icon: "text-green-700 dark:text-green-400",
-    value: "text-green-700 dark:text-green-400",
-    border: "border-l-green-500/70",
+    chip: "bg-success/15",
+    icon: "text-success",
+    value: "text-success",
+    border: "border-l-success/70",
   },
   fail: {
-    chip: "bg-red-500/15",
-    icon: "text-red-700 dark:text-red-400",
-    value: "text-red-700 dark:text-red-400",
-    border: "border-l-red-500/70",
+    chip: "bg-destructive/15",
+    icon: "text-destructive",
+    value: "text-destructive",
+    border: "border-l-destructive/70",
   },
   info: {
-    chip: "bg-violet-500/15",
-    icon: "text-violet-700 dark:text-violet-400",
+    chip: "bg-info/15",
+    icon: "text-info",
     value: "text-foreground",
-    border: "border-l-violet-500/70",
+    border: "border-l-info/70",
   },
 };
 

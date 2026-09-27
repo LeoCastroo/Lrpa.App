@@ -24,24 +24,15 @@ import { formatDateTime } from "@/lib/time";
 import { IPendenciesResponse } from "@/service/types/Pendencies";
 import { useServicesStore, useUserStore } from "@/store";
 
-const robotKindConfig: Record<string, { label: string; className: string }> = {
-  robo_parado: {
-    label: "Parado",
-    className: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-transparent",
-  },
-  robo_falhando: {
-    label: "Falhando",
-    className: "bg-red-500/15 text-red-700 dark:text-red-400 border-transparent",
-  },
-  robo_travado: {
-    label: "Travado",
-    className: "bg-red-500/15 text-red-700 dark:text-red-400 border-transparent",
-  },
+const robotKindConfig: Record<string, { label: string; variant: "warning" | "danger" }> = {
+  robo_parado: { label: "Parado", variant: "warning" },
+  robo_falhando: { label: "Falhando", variant: "danger" },
+  robo_travado: { label: "Travado", variant: "danger" },
 };
 
 function RobotKindBadge({ kind }: { kind: string }) {
-  const config = robotKindConfig[kind] ?? { label: kind, className: "" };
-  return <Badge className={config.className}>{config.label}</Badge>;
+  const config = robotKindConfig[kind];
+  return <Badge variant={config?.variant ?? "outline"}>{config?.label ?? kind}</Badge>;
 }
 
 /** ADMIN escolhe o escritório (união dos escritórios de todos os serviços carregados). */
@@ -154,7 +145,7 @@ export default function Page() {
       ) : totalPendencies === 0 ? (
         <Card>
           <CardContent className="py-10 flex flex-col items-center gap-2 text-center text-muted-foreground">
-            <CircleCheck className="size-8 text-green-600 dark:text-green-500" />
+            <CircleCheck className="size-8 text-success" />
             <p className="text-foreground font-medium">Tudo em dia</p>
             <p className="text-sm">Nenhuma pendência encontrada nos serviços deste escritório.</p>
           </CardContent>
@@ -201,7 +192,7 @@ export default function Page() {
                       className="flex items-center justify-between px-4 py-3 hover:bg-accent/50 transition-colors"
                     >
                       <span>{item.service_name}</span>
-                      <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-transparent">
+                      <Badge variant="warning">
                         {item.count} {item.count === 1 ? item.unit_plural.slice(0, -1) : item.unit_plural}
                       </Badge>
                     </Link>

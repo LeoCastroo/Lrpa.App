@@ -255,10 +255,15 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
 
   return (
     <div className="flex flex-col gap-3 min-h-[480px]">
-      <div className="flex flex-wrap items-center gap-2">
-        <PeriodSelect value={period.preset} onChange={period.setPreset} disabled={!!execution} />
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2">
+        <PeriodSelect
+          value={period.preset}
+          onChange={period.setPreset}
+          disabled={!!execution}
+          className="w-full sm:w-auto"
+        />
         <Select value={status} onValueChange={(v) => update({ status: v })}>
-          <SelectTrigger className="w-40 bg-card">
+          <SelectTrigger className="w-full sm:w-40 bg-card">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -268,7 +273,7 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
           </SelectContent>
         </Select>
         <Select value={category} onValueChange={(v) => update({ category: v })}>
-          <SelectTrigger className="w-60 bg-card">
+          <SelectTrigger className="w-full sm:w-60 bg-card">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -282,7 +287,7 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
           </SelectContent>
         </Select>
         <Select value={view} onValueChange={(v) => update({ view: v === "current" ? undefined : v })}>
-          <SelectTrigger className="w-56 bg-card">
+          <SelectTrigger className="w-full sm:w-56 bg-card">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -290,7 +295,7 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
             <SelectItem value="attempts">Todas as tentativas</SelectItem>
           </SelectContent>
         </Select>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:ml-auto items-stretch sm:items-center gap-2">
           {manualResolution && selected.size > 0 && (
             <Button onClick={() => setResolveOpen(true)}>
               <CheckSquare className="size-4" />

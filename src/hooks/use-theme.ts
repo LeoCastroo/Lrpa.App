@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { create } from "zustand";
 
 export type Theme = "dark" | "light" | "auto";
 
@@ -12,21 +12,26 @@ export function applyTheme(theme: Theme) {
   }
 }
 
-export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>(
-    () => (localStorage.getItem("theme") as Theme) ?? "auto"
-  );
+interface ThemeStore {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+}
 
-  useEffect(() => {
+// Zustand (não useState local): a Toaster e a tela de Conta chamam useTheme() em componentes
+// diferentes e precisam enxergar a mesma troca de tema na hora, não só depois de um reload.
+const useThemeStore = create<ThemeStore>((set) => ({
+  theme: (localStorage.getItem("theme") as Theme | null) ?? "auto",
+  setTheme: (theme) => {
     applyTheme(theme);
     if (theme === "auto") {
       localStorage.removeItem("theme");
     } else {
       localStorage.setItem("theme", theme);
     }
-  }, [theme]);
+    set({ theme });
+  },
+}));
 
-  const setTheme = useCallback((next: Theme) => setThemeState(next), []);
-
-  return { theme, setTheme };
+export function useTheme() {
+  return useThemeStore();
 }

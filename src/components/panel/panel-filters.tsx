@@ -63,10 +63,10 @@ export function PanelFilters({
   const hasValues = Object.values(values).some(Boolean);
 
   return (
-    <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
+    <form onSubmit={submit} className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-2">
       {filters.map((filter) =>
         filter.input === "select" ? (
-          <div key={filter.key} className="flex flex-col gap-1">
+          <div key={filter.key} className="flex flex-col gap-1 w-full sm:w-auto">
             <span className="text-xs text-muted-foreground">{filter.label}</span>
             <Select
               value={draft[filter.key] || ALL}
@@ -76,7 +76,7 @@ export function PanelFilters({
                 onApply(Object.fromEntries(Object.entries(next).filter(([, x]) => x)));
               }}
             >
-              <SelectTrigger className="w-52 bg-card">
+              <SelectTrigger className="w-full sm:w-52 bg-card">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -90,10 +90,10 @@ export function PanelFilters({
             </Select>
           </div>
         ) : (
-          <div key={filter.key} className="flex flex-col gap-1">
+          <div key={filter.key} className="flex flex-col gap-1 w-full sm:w-auto">
             <span className="text-xs text-muted-foreground">{filter.label}</span>
             <Input
-              className="w-44 bg-card"
+              className="w-full sm:w-44 bg-card"
               type={filter.input === "number" ? "number" : "text"}
               placeholder={filter.placeholder}
               value={draft[filter.key] ?? ""}
@@ -102,16 +102,18 @@ export function PanelFilters({
           </div>
         )
       )}
-      <Button type="submit" variant="secondary">
-        <Search className="size-4" />
-        Buscar
-      </Button>
-      {hasValues && (
-        <Button type="button" variant="ghost" onClick={clear}>
-          <X className="size-4" />
-          Limpar
+      <div className="flex items-center gap-2">
+        <Button type="submit" variant="secondary" className="flex-1 sm:flex-initial">
+          <Search className="size-4" />
+          Buscar
         </Button>
-      )}
+        {hasValues && (
+          <Button type="button" variant="ghost" onClick={clear} className="flex-1 sm:flex-initial">
+            <X className="size-4" />
+            Limpar
+          </Button>
+        )}
+      </div>
     </form>
   );
 }

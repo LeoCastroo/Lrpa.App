@@ -13,11 +13,18 @@ const badgeVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
         destructive:
-          "bg-destructive text-white focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/90",
         outline:
           "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         link: "text-primary underline-offset-4 [a&]:hover:underline",
+        // Fundo translúcido + texto sólido no tom — mesmo padrão usado por todo badge de
+        // status do produto (execução, importação, motivo de falha); o tom já muda sozinho
+        // no dark mode porque é token, não precisa de `dark:` em cada uso.
+        success: "bg-success/15 text-success [a&]:hover:bg-success/25",
+        warning: "bg-warning/15 text-warning [a&]:hover:bg-warning/25",
+        info: "bg-info/15 text-info [a&]:hover:bg-info/25",
+        danger: "bg-destructive/15 text-destructive [a&]:hover:bg-destructive/25",
       },
     },
     defaultVariants: {

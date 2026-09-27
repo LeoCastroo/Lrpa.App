@@ -38,7 +38,7 @@ export function FailureReasons({
                   <span className="font-medium">O que fazer:</span> {reason.action}
                 </p>
                 <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                  <div className="h-full bg-red-500/70" style={{ width: `${share}%` }} />
+                  <div className="h-full bg-destructive/70" style={{ width: `${share}%` }} />
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
