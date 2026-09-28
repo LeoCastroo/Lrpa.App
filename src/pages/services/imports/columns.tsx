@@ -7,12 +7,13 @@ export const columns: ColumnDef<IImport>[] = [
   {
     accessorKey: "created_at",
     header: "Enviado em",
+    enableSorting: true,
     cell: ({ row }) => dayjs(row.original.created_at).format("DD/MM/YYYY HH:mm"),
   },
   {
     accessorKey: "file_name",
     header: "Arquivo",
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => (
       <span className="block max-w-[220px] truncate">{row.original.file_name}</span>
     ),
@@ -20,18 +21,18 @@ export const columns: ColumnDef<IImport>[] = [
   {
     accessorKey: "created_by_name",
     header: "Enviado por",
-    enableSorting: false,
+    enableSorting: true,
   },
   {
     accessorKey: "row_count",
     header: "Linhas",
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => <div className="text-right tabular-nums">{row.original.row_count}</div>,
   },
   {
     accessorKey: "status",
     header: "Status",
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => <ImportStatusBadge status={row.original.status} />,
   },
 ];

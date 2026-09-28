@@ -1,4 +1,4 @@
-import { ColumnDef, OnChangeFn, PaginationState } from "@tanstack/react-table";
+import { ColumnDef, OnChangeFn, PaginationState, SortingState } from "@tanstack/react-table";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -16,15 +16,19 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const page = Math.max(1, Number(params.get("page")) || 1);
+  const sort = params.get("sort") ?? undefined;
+  const sortDir = params.get("sortDir") === "desc" ? "desc" : sort ? "asc" : undefined;
   const [data, setData] = useState<IPaginated<IExecution> | null>(null);
   const [loading, setLoading] = useState(false);
   const panel = service.panel!;
+
+  const sorting: SortingState = sort ? [{ id: sort, desc: sortDir === "desc" }] : [];
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     api.panel
-      .getExecutions(service.key, { office, page, limit: PAGE_SIZE })
+      .getExecutions(service.key, { office, page, limit: PAGE_SIZE, sort, sortDir })
       .then((result) => active && setData(result))
       .catch((error) =>
         toast.error(error?.response?.data?.message ?? "Erro ao carregar as execuções.")
@@ -33,14 +37,17 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
     return () => {
       active = false;
     };
-  }, [service.key, office, page]);
+  }, [service.key, office, page, sort, sortDir]);
 
   const columns = useMemo<ColumnDef<IExecution>[]>(() => {
     const cols: ColumnDef<IExecution>[] = [
       {
         id: "startedAt",
         header: "Início",
-        enableSorting: false,
+        // accessorFn: a ordenação real acontece no servidor (manualSorting), mas o tanstack
+        // só habilita o clique-pra-ordenar em colunas com um jeito de ler o valor.
+        accessorFn: (row) => row.startedAt,
+        enableSorting: true,
         cell: ({ row }) => formatDateTime(row.original.startedAt),
       },
       {
@@ -52,7 +59,8 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
       {
         id: "duration",
         header: "Duração",
-        enableSorting: false,
+        accessorFn: (row) => row.durationSeconds,
+        enableSorting: true,
         cell: ({ row }) => formatDuration(row.original.durationSeconds),
       },
       {
@@ -108,6 +116,21 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
     setParams(nextParams);
   };
 
+  const onSortingChange: OnChangeFn<SortingState> = (updater) => {
+    const next = typeof updater === "function" ? updater(sorting) : updater;
+    const first = next[0];
+    const nextParams = new URLSearchParams(params);
+    nextParams.delete("page");
+    if (first) {
+      nextParams.set("sort", first.id);
+      nextParams.set("sortDir", first.desc ? "desc" : "asc");
+    } else {
+      nextParams.delete("sort");
+      nextParams.delete("sortDir");
+    }
+    setParams(nextParams);
+  };
+
   function openExecution(execution: IExecution) {
     const next = new URLSearchParams();
     if (office) next.set("office", office);
@@ -127,8 +150,8 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
         pageCount={data?.totalPages ?? 1}
         pagination={pagination}
         onPaginationChange={onPaginationChange}
-        sorting={[]}
-        onSortingChange={() => {}}
+        sorting={sorting}
+        onSortingChange={onSortingChange}
         isLoading={loading}
         onRowClick={openExecution}
       />

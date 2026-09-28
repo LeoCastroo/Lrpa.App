@@ -1,4 +1,4 @@
-import { ColumnDef, OnChangeFn, PaginationState } from "@tanstack/react-table";
+import { ColumnDef, OnChangeFn, PaginationState, SortingState } from "@tanstack/react-table";
 import { CheckSquare, Download, Loader2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -79,6 +79,8 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
   const view = params.get("view") === "attempts" ? "attempts" : "current";
   const execution = params.get("execution") ?? undefined;
   const page = Math.max(1, Number(params.get("page")) || 1);
+  const sort = params.get("sort") ?? undefined;
+  const sortDir = params.get("sortDir") === "desc" ? "desc" : sort ? "asc" : undefined;
   const filterValues = Object.fromEntries(
     [...params.entries()].filter(([k]) => k.startsWith("f_")).map(([k, v]) => [k.slice(2), v])
   );
@@ -97,9 +99,13 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
     status: status !== ALL ? status : undefined,
     category: category !== ALL ? category : undefined,
     execution,
+    sort,
+    sortDir,
     ...Object.fromEntries(Object.entries(filterValues).map(([k, v]) => [`f_${k}`, v])),
   };
   const queryKey = JSON.stringify(query);
+
+  const sorting: SortingState = sort ? [{ id: sort, desc: sortDir === "desc" }] : [];
 
   function update(changes: Record<string, string | undefined>, resetPage = true) {
     const next = new URLSearchParams(params);
@@ -110,6 +116,12 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
     if (resetPage) next.delete("page");
     setParams(next);
   }
+
+  const onSortingChange: OnChangeFn<SortingState> = (updater) => {
+    const next = typeof updater === "function" ? updater(sorting) : updater;
+    const first = next[0];
+    update({ sort: first?.id, sortDir: first ? (first.desc ? "desc" : "asc") : undefined });
+  };
 
   function applyFilters(values: Record<string, string>) {
     const next = new URLSearchParams(params);
@@ -207,7 +219,10 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
       .map((field) => ({
         id: field.key,
         header: field.label,
-        enableSorting: false,
+        // accessorFn: a ordenação real acontece no servidor (manualSorting), mas o
+        // tanstack só habilita o clique-pra-ordenar em colunas com um jeito de ler o valor.
+        accessorFn: (row) => row.values[field.key],
+        enableSorting: true,
         cell: ({ row }) => renderValue(field, row.original.values[field.key]),
       }));
     cols.push(
@@ -351,8 +366,8 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
         pageCount={data?.totalPages ?? 1}
         pagination={pagination}
         onPaginationChange={onPaginationChange}
-        sorting={[]}
-        onSortingChange={() => {}}
+        sorting={sorting}
+        onSortingChange={onSortingChange}
         isLoading={loading}
       />
 

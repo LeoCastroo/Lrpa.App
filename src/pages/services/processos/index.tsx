@@ -1,4 +1,4 @@
-import { ColumnDef, OnChangeFn, PaginationState } from "@tanstack/react-table";
+import { ColumnDef, OnChangeFn, PaginationState, SortingState } from "@tanstack/react-table";
 import { Download, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -36,6 +36,9 @@ function Processos({ service, office }: { service: IServiceDefinition; office?: 
 
   const searchTerm = params.get("q") ?? "";
   const page = Math.max(1, Number(params.get("page")) || 1);
+  const sort = params.get("sort") ?? undefined;
+  const sortDir: "asc" | "desc" | undefined =
+    params.get("sortDir") === "desc" ? "desc" : sort ? "asc" : undefined;
   const filterValues = Object.fromEntries(
     [...params.entries()].filter(([k]) => k.startsWith("f_")).map(([k, v]) => [k.slice(2), v])
   );
@@ -45,14 +48,18 @@ function Processos({ service, office }: { service: IServiceDefinition; office?: 
   const [exporting, setExporting] = useState(false);
   const [searchDraft, setSearchDraft] = useState(searchTerm);
 
+  const sorting: SortingState = sort ? [{ id: sort, desc: sortDir === "desc" }] : [];
+
   const body = useMemo(
     () => ({
       search: searchTerm || undefined,
       filters: filterValues,
+      sort,
+      sortDir,
       page,
       limit: PAGE_SIZE,
     }),
-    [searchTerm, JSON.stringify(filterValues), page]
+    [searchTerm, JSON.stringify(filterValues), sort, sortDir, page]
   );
 
   useEffect(() => {
@@ -86,6 +93,12 @@ function Processos({ service, office }: { service: IServiceDefinition; office?: 
     setParams(next);
   }
 
+  const onSortingChange: OnChangeFn<SortingState> = (updater) => {
+    const next = typeof updater === "function" ? updater(sorting) : updater;
+    const first = next[0];
+    update({ sort: first?.id, sortDir: first ? (first.desc ? "desc" : "asc") : undefined });
+  };
+
   async function handleExport() {
     setExporting(true);
     try {
@@ -108,7 +121,10 @@ function Processos({ service, office }: { service: IServiceDefinition; office?: 
         .map((field) => ({
           id: field.key,
           header: field.label,
-          enableSorting: false,
+          // accessorFn: a ordenação real acontece no servidor (manualSorting), mas o
+          // tanstack só habilita o clique-pra-ordenar em colunas com um jeito de ler o valor.
+          accessorFn: (row) => row[field.key],
+          enableSorting: true,
           cell: ({ row }) => renderValue(field, row.original[field.key]),
         })),
     [lake.fields]
@@ -163,8 +179,8 @@ function Processos({ service, office }: { service: IServiceDefinition; office?: 
         pageCount={data?.totalPages ?? 1}
         pagination={pagination}
         onPaginationChange={onPaginationChange}
-        sorting={[]}
-        onSortingChange={() => {}}
+        sorting={sorting}
+        onSortingChange={onSortingChange}
         isLoading={loading}
         onRowClick={(row) => navigate(`/services/${service.key}/processos/${row.id}`)}
       />

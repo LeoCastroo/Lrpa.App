@@ -63,6 +63,7 @@ function ImportList({ service }: { service: IServiceDefinition }) {
   useEffect(() => {
     const controller = new AbortController();
     setIsLoading(true);
+    const sort = sorting[0];
     api.imports
       .getImports({
         serviceKey,
@@ -70,6 +71,8 @@ function ImportList({ service }: { service: IServiceDefinition }) {
         limit: pagination.pageSize,
         status: status !== "all" ? status : undefined,
         period,
+        sort: sort?.id,
+        sortDir: sort ? (sort.desc ? "desc" : "asc") : undefined,
         signal: controller.signal,
       })
       .then((res) => {
@@ -145,7 +148,10 @@ function ImportList({ service }: { service: IServiceDefinition }) {
         pagination={pagination}
         onPaginationChange={setPagination}
         sorting={sorting}
-        onSortingChange={setSorting}
+        onSortingChange={(updater) => {
+          setSorting(updater);
+          setPagination((p) => ({ ...p, pageIndex: 0 }));
+        }}
         isLoading={isLoading}
         onRowClick={(row) => navigate(`/services/${serviceKey}/imports/${row.id}`)}
       />
