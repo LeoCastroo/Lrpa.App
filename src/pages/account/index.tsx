@@ -20,6 +20,7 @@ const roleLabel: Record<string, string> = {
 const themeOptions: { value: Theme; label: string }[] = [
   { value: "light", label: "Claro" },
   { value: "dark", label: "Escuro" },
+  { value: "gray", label: "Cinza" },
   { value: "auto", label: "Automático" },
 ];
 

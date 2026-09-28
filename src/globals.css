@@ -151,6 +151,29 @@
   --shadow-2xl: 0.25px 1px 3px 0px hsl(236.5829 64.225% 21.4383% / 0.38);
 }
 
+/* Tema "Cinza": paleta intermediária entre o branco e o preto puros do claro/escuro — reaproveita
+   o .dark inteiro (inclusive os utilitários dark: dos componentes shadcn) e só suaviza os tokens
+   acromáticos (fundo/texto/bordas), reduzindo o contraste extremo do modo escuro padrão. */
+.dark.theme-gray {
+  --background: oklch(0.22 0 0);
+  --foreground: oklch(0.92 0 0);
+  --card: oklch(0.26 0 0);
+  --card-foreground: oklch(0.9 0 0);
+  --popover: oklch(0.26 0 0);
+  --popover-foreground: oklch(0.92 0 0);
+  --secondary: oklch(0.3 0 0);
+  --secondary-foreground: oklch(0.9 0 0);
+  --muted: oklch(0.28 0 0);
+  --muted-foreground: oklch(0.65 0 0);
+  --accent: oklch(0.34 0 0);
+  --border: oklch(0.32 0 0);
+  --input: oklch(0.34 0 0);
+  --sidebar: oklch(0.24 0 0);
+  --sidebar-foreground: oklch(0.92 0 0);
+  --sidebar-accent: oklch(0.34 0 0);
+  --sidebar-border: oklch(0.32 0 0);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

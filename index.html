@@ -13,8 +13,9 @@
       (function () {
         const stored = localStorage.getItem("theme");
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        const isDark = stored === "dark" || (stored !== "light" && prefersDark);
+        const isDark = stored === "dark" || stored === "gray" || (!stored && prefersDark);
         document.documentElement.classList.toggle("dark", isDark);
+        document.documentElement.classList.toggle("theme-gray", stored === "gray");
         window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
           if (!localStorage.getItem("theme")) {
             document.documentElement.classList.toggle("dark", e.matches);

@@ -1,15 +1,18 @@
 import { create } from "zustand";
 
-export type Theme = "dark" | "light" | "auto";
+// "gray" é uma variação do escuro (fundo/texto num cinza intermediário em vez de preto/branco
+// puro) — reaproveita todo o dark: dos componentes shadcn (aplica a classe "dark" também) e só
+// sobrescreve os tokens acromáticos em ".dark.theme-gray" no globals.css.
+export type Theme = "dark" | "light" | "gray" | "auto";
 
 export function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  if (theme === "auto") {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    root.classList.toggle("dark", prefersDark);
-  } else {
-    root.classList.toggle("dark", theme === "dark");
-  }
+  const resolved =
+    theme === "auto"
+      ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+      : theme;
+  root.classList.toggle("dark", resolved === "dark" || resolved === "gray");
+  root.classList.toggle("theme-gray", resolved === "gray");
 }
 
 interface ThemeStore {
