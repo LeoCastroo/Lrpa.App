@@ -1,9 +1,10 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { NavUser } from "@/components/nav-user";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { checkToken, getNewToken } from "@/service/authentication";
-import { useServicesStore } from "@/store";
+import { useServicesStore, useUserStore } from "@/store";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 
@@ -15,6 +16,7 @@ export default function PrivateLayout({
   const [state, setState] = useState<SessionState>("checking");
   const [attempt, setAttempt] = useState(0);
   const fetchServices = useServicesStore((s) => s.fetch);
+  const user = useUserStore((s) => s.user);
 
   useEffect(() => {
     const refreshToken = localStorage.getItem("refresh_token");
@@ -88,9 +90,12 @@ export default function PrivateLayout({
     <SidebarProvider className="h-svh">
       <AppSidebar variant="inset" collapsible="icon" />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+        <header className="flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1 text-foreground" />
+          </div>
+          <div className="flex items-center gap-2 px-4">
+            <NavUser user={{ avatar: "", email: user.email, name: user.name }} />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0 min-h-0 overflow-y-auto">

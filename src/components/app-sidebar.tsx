@@ -19,13 +19,7 @@ import * as React from "react";
 
 import { BrandMark } from "@/components/brand-logo";
 import { NavMain } from "@/components/nav-main";
-import { NavUser } from "@/components/nav-user";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-} from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { groupServicesByClient } from "@/lib/group-by-client";
 import { useServicesStore, useUserStore } from "@/store";
@@ -112,10 +106,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           ))
         )}
       </SidebarContent>
-
-      <SidebarFooter>
-        <NavUser user={{ avatar: "", email: user.email, name: user.name }} />
-      </SidebarFooter>
     </Sidebar>
   );
 }
