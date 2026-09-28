@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import api from "@/api";
@@ -8,6 +9,7 @@ import { PeriodSelect } from "@/components/panel/period-select";
 import { ServicePage } from "@/components/service-hub/service-page";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { usePeriod } from "@/hooks/use-period";
 import { IInsightSection } from "@/service/types/Panel";
 import { IServiceDefinition } from "@/service/types/Service";
@@ -38,7 +40,10 @@ function Results({ service, office }: { service: IServiceDefinition; office?: st
         <p className="text-sm text-muted-foreground">
           Indicadores de {period.label.toLowerCase()} (horário de Brasília).
         </p>
-        <PeriodSelect value={period.preset} onChange={period.setPreset} />
+        <div className="flex items-center gap-2">
+          {loading && sections && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
+          <PeriodSelect value={period.preset} onChange={period.setPreset} disabled={loading} />
+        </div>
       </div>
 
       {loading && !sections ? (
@@ -57,47 +62,54 @@ function Results({ service, office }: { service: IServiceDefinition; office?: st
           </CardContent>
         </Card>
       ) : (
-        sections.map((section) => (
-          <div key={section.key} className="flex flex-col gap-3">
-            <div>
-              <h2 className="text-lg font-medium">{section.title}</h2>
-              <p className="text-sm text-muted-foreground">{section.description}</p>
+        <div
+          className={cn(
+            "flex flex-col gap-4 transition-opacity",
+            loading && "opacity-50 pointer-events-none"
+          )}
+        >
+          {sections.map((section) => (
+            <div key={section.key} className="flex flex-col gap-3">
+              <div>
+                <h2 className="text-lg font-medium">{section.title}</h2>
+                <p className="text-sm text-muted-foreground">{section.description}</p>
+              </div>
+
+              {section.metrics.length > 0 && (
+                <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+                  {section.metrics.map((m) => (
+                    <InsightMetricCard key={m.key} metric={m} />
+                  ))}
+                </div>
+              )}
+
+              {(section.breakdowns.length > 0 || section.timeseries.length > 0) && (
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {section.breakdowns.map((b) => (
+                    <Card key={b.key}>
+                      <CardHeader>
+                        <CardTitle className="text-base">{b.label}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <InsightBreakdown breakdown={b} />
+                      </CardContent>
+                    </Card>
+                  ))}
+                  {section.timeseries.map((t) => (
+                    <Card key={t.key} className={section.breakdowns.length % 2 === 1 ? "lg:col-span-2" : undefined}>
+                      <CardHeader>
+                        <CardTitle className="text-base">{t.label}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <InsightTimeseriesChart timeseries={t} />
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
-
-            {section.metrics.length > 0 && (
-              <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-                {section.metrics.map((m) => (
-                  <InsightMetricCard key={m.key} metric={m} />
-                ))}
-              </div>
-            )}
-
-            {(section.breakdowns.length > 0 || section.timeseries.length > 0) && (
-              <div className="grid gap-4 lg:grid-cols-2">
-                {section.breakdowns.map((b) => (
-                  <Card key={b.key}>
-                    <CardHeader>
-                      <CardTitle className="text-base">{b.label}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <InsightBreakdown breakdown={b} />
-                    </CardContent>
-                  </Card>
-                ))}
-                {section.timeseries.map((t) => (
-                  <Card key={t.key} className={section.breakdowns.length % 2 === 1 ? "lg:col-span-2" : undefined}>
-                    <CardHeader>
-                      <CardTitle className="text-base">{t.label}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <InsightTimeseriesChart timeseries={t} />
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        ))
+          ))}
+        </div>
       )}
     </div>
   );

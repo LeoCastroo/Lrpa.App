@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { usePeriod } from "@/hooks/use-period";
 import { IPanelSummary } from "@/service/types/Panel";
 import { IServiceDefinition } from "@/service/types/Service";
@@ -55,7 +57,10 @@ function Overview({ service, office }: { service: IServiceDefinition; office?: s
         <p className="text-sm text-muted-foreground">
           Indicadores de {period.label.toLowerCase()} (horário de Brasília).
         </p>
-        <PeriodSelect value={period.preset} onChange={period.setPreset} />
+        <div className="flex items-center gap-2">
+          {loading && summary && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
+          <PeriodSelect value={period.preset} onChange={period.setPreset} disabled={loading} />
+        </div>
       </div>
 
       {loading && !summary ? (
@@ -69,7 +74,12 @@ function Overview({ service, office }: { service: IServiceDefinition; office?: s
         </div>
       ) : (
         summary && (
-          <>
+          <div
+            className={cn(
+              "flex flex-col gap-4 transition-opacity",
+              loading && "opacity-50 pointer-events-none"
+            )}
+          >
             <KpiCards kpis={summary.kpis} unitPlural={unit.plural} />
 
             <div className="grid gap-4 lg:grid-cols-3">
@@ -107,7 +117,7 @@ function Overview({ service, office }: { service: IServiceDefinition; office?: s
                 />
               </CardContent>
             </Card>
-          </>
+          </div>
         )
       )}
     </div>
