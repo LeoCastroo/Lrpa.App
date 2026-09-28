@@ -20,9 +20,11 @@ export type FailureKind = "temporaria" | "permanente" | "correcao";
 export interface IPanelField {
   key: string;
   label: string;
-  type: "text" | "number" | "datetime" | "boolean" | "currency";
+  type: "text" | "number" | "datetime" | "boolean" | "currency" | "link";
   table: boolean;
   export: boolean;
+  /** type="link": URL do link, com "{value}" substituído pelo valor da célula. */
+  linkTemplate?: string;
 }
 
 export interface IPanelFilter {

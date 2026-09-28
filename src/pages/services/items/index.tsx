@@ -41,6 +41,19 @@ function renderValue(field: IPanelField, value: unknown) {
   if (field.type === "boolean") return value ? "Sim" : "Não";
   if (field.type === "number") return String(value);
   if (field.type === "currency") return formatCurrency(Number(value));
+  if (field.type === "link" && field.linkTemplate) {
+    const href = field.linkTemplate.replace("{value}", encodeURIComponent(String(value)));
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className="text-primary underline underline-offset-2 hover:no-underline"
+      >
+        {String(value)}
+      </a>
+    );
+  }
   return <span className="block max-w-[280px] truncate" title={String(value)}>{String(value)}</span>;
 }
 
