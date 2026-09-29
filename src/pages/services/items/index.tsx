@@ -41,8 +41,16 @@ function renderValue(field: IPanelField, value: unknown) {
   if (field.type === "boolean") return value ? "Sim" : "Não";
   if (field.type === "number") return String(value);
   if (field.type === "currency") return formatCurrency(Number(value));
-  if (field.type === "link" && field.linkTemplate) {
-    const href = field.linkTemplate.replace("{value}", encodeURIComponent(String(value)));
+  if (field.type === "link") {
+    const raw = String(value);
+    // Sem linkTemplate, o próprio valor já é a URL completa (ex.: link de download) — mostra um
+    // rótulo curto em vez da URL inteira. Com linkTemplate, o valor é um id substituído nele.
+    // Às vezes o valor não é uma URL de verdade (ex.: a DW LAW grava "Sem acesso ao processo" no
+    // lugar do link) — nesse caso mostra como texto normal, não como link quebrado.
+    if (!field.linkTemplate && !/^https?:\/\//i.test(raw)) {
+      return <span className="block max-w-[280px] truncate" title={raw}>{raw}</span>;
+    }
+    const href = field.linkTemplate ? field.linkTemplate.replace("{value}", encodeURIComponent(raw)) : raw;
     return (
       <a
         href={href}
@@ -50,7 +58,7 @@ function renderValue(field: IPanelField, value: unknown) {
         rel="noreferrer"
         className="text-primary underline underline-offset-2 hover:no-underline"
       >
-        {String(value)}
+        {field.linkTemplate ? raw : "Abrir arquivo"}
       </a>
     );
   }
