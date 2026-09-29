@@ -33,6 +33,7 @@ export interface IPanelSummary {
     successRate: number | null;
     processes: number;
     secondaryFailures: { label: string; attempts: number; processes: number } | null;
+    amount: { label: string; total: number } | null;
   };
   daily: { day: string; ok: number; fail: number }[];
   failuresByReason: IFailureReasonCount[];

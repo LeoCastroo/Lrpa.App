@@ -1,10 +1,12 @@
-import { CheckCircle2, FileStack, FolderOpen, XCircle } from "lucide-react";
+import { CheckCircle2, FileStack, FolderOpen, Wallet, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { formatDateTime, formatDuration, formatNumber } from "@/lib/time";
 import { IExecution, IPanelSummary } from "@/service/types/Panel";
 import { ExecutionStateBadge } from "./badges";
+
+const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 export function LastExecutionCard({
   execution,
@@ -150,7 +152,7 @@ export function KpiCards({
   const unitLabel = unitPlural.charAt(0).toUpperCase() + unitPlural.slice(1);
 
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className={cn("grid grid-cols-2 gap-4", kpis.amount ? "lg:grid-cols-5" : "lg:grid-cols-4")}>
       <Kpi
         icon={FileStack}
         label={`${unitLabel} no período`}
@@ -166,6 +168,13 @@ export function KpiCards({
       />
       <Kpi icon={XCircle} label="Com falha" value={formatNumber(kpis.fail)} tone="fail" />
       <Kpi icon={FolderOpen} label="Processos" value={formatNumber(kpis.processes)} tone="info" />
+      {kpis.amount && (
+        <Kpi
+          icon={Wallet}
+          label={kpis.amount.label}
+          value={currencyFormatter.format(kpis.amount.total)}
+        />
+      )}
     </div>
   );
 }
