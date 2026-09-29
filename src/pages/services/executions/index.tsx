@@ -94,16 +94,11 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
     }
     cols.push({
       id: "error",
-      header: "Erro da execução",
+      header: "Situação",
       enableSorting: false,
-      cell: ({ row }) =>
-        row.original.error ? (
-          <span className="block max-w-[320px] truncate" title={row.original.error}>
-            {row.original.error}
-          </span>
-        ) : (
-          "—"
-        ),
+      // O detalhe técnico da falha (mensagem de exceção) não aparece aqui de propósito — é
+      // informação para quem monitora os robôs (Central de Pendências), não para o cliente final.
+      cell: ({ row }) => (row.original.error ? "Falha técnica na execução" : "—"),
     });
     return cols;
   }, [panel]);
