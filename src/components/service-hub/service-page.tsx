@@ -50,7 +50,7 @@ const TABS: TabDef[] = [
   {
     key: "imports",
     label: () => "Importações",
-    visible: (s, isAdmin) => s.capabilities.import && !isAdmin,
+    visible: (s) => s.capabilities.import,
   },
 ];
 
@@ -160,8 +160,7 @@ export function ServicePage({
   if (isLoading) return <HubSkeleton />;
   if (notFound || !service) return <Navigate to="/" replace />;
 
-  const allowed =
-    service.capabilities[require] && !(require === "import" && officeState.isAdmin);
+  const allowed = service.capabilities[require];
   if (!allowed) return <Navigate to={`/services/${service.key}${search}`} replace />;
 
   return (

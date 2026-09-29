@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import api from "@/api";
 import { ImportStatusBadge } from "@/components/imports/import-status-badge";
 import { ValidationErrorsTable } from "@/components/imports/validation-errors-table";
+import { OfficePicker } from "@/components/office-picker";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { downloadBlob } from "@/lib/download";
+import { useOffice } from "@/hooks/use-office";
 import { useService } from "@/hooks/use-service";
 import { IImport } from "@/service/types/Import";
 import { useUploadWindow } from "@/hooks/use-upload-window";
@@ -36,6 +38,7 @@ export default function Page() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { serviceKey, service, isLoading: serviceLoading, notFound } = useService();
+  const officeState = useOffice(service);
   const { isOpen: windowOpen } = useUploadWindow();
 
   const [item, setItem] = useState<IImport | null>(null);
@@ -47,23 +50,23 @@ export default function Page() {
   }, [notFound]);
 
   useEffect(() => {
-    if (!service || !serviceKey || !id) return;
+    if (!service || !serviceKey || !id || !officeState.ready) return;
     setIsLoading(true);
     api.imports
-      .getImport(serviceKey, id)
+      .getImport(serviceKey, id, officeState.office)
       .then(setItem)
       .catch((error) => {
         toast.error(error?.response?.data?.message ?? "Importação não encontrada.");
         navigate(`/services/${serviceKey}/imports`);
       })
       .finally(() => setIsLoading(false));
-  }, [service, serviceKey, id]);
+  }, [service, serviceKey, id, officeState.office, officeState.ready]);
 
   async function handleDownload() {
     if (!serviceKey || !id || !item) return;
     try {
       setDownloading(true);
-      const blob = await api.imports.getImportFile(serviceKey, id);
+      const blob = await api.imports.getImportFile(serviceKey, id, officeState.office);
       downloadBlob(blob, item.file_name);
     } catch {
       toast.error("Não foi possível baixar a planilha.");
@@ -87,32 +90,37 @@ export default function Page() {
 
   if (!item) return null;
 
+  const officeSuffix = officeState.office ? `?office=${officeState.office}` : "";
+
   return (
     <div className="container mx-auto py-2 max-w-3xl flex flex-col gap-4">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink onClick={() => navigate("/")} className="cursor-pointer">
-              Início
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink
-              onClick={() => navigate(`/services/${serviceKey}/imports`)}
-              className="cursor-pointer"
-            >
-              {service!.name}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>
-              Importação de {dayjs(item.created_at).format("DD/MM/YYYY HH:mm")}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink onClick={() => navigate("/")} className="cursor-pointer">
+                Início
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink
+                onClick={() => navigate(`/services/${serviceKey}/imports${officeSuffix}`)}
+                className="cursor-pointer"
+              >
+                {service!.name}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>
+                Importação de {dayjs(item.created_at).format("DD/MM/YYYY HH:mm")}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <OfficePicker officeState={officeState} />
+      </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -142,7 +150,7 @@ export default function Page() {
             {downloading ? "Baixando..." : "Baixar planilha enviada"}
           </Button>
           {windowOpen && (
-            <Button onClick={() => navigate(`/services/${serviceKey}/imports/new`)}>
+            <Button onClick={() => navigate(`/services/${serviceKey}/imports/new${officeSuffix}`)}>
               <Plus className="size-4" />
               Enviar nova planilha
             </Button>

@@ -3,6 +3,8 @@ import { IImport, IImportListResponse } from "@/service/types/Import";
 
 interface ListParams {
   serviceKey: string;
+  /** rpa_code do escritório (só ADMIN — CLIENT usa sempre o escritório do próprio token). */
+  office?: string;
   page?: number;
   limit?: number;
   status?: string;
@@ -21,22 +23,26 @@ async function getImports(params: ListParams): Promise<IImportListResponse> {
   return data;
 }
 
-async function getImport(serviceKey: string, id: string): Promise<IImport> {
-  const { data } = await api.get(`/services/${serviceKey}/imports/${id}`);
-  return data;
-}
-
-async function createImport(serviceKey: string, file: File): Promise<IImport> {
-  const form = new FormData();
-  form.append("file", file);
-  const { data } = await api.post(`/services/${serviceKey}/imports`, form, {
-    headers: { "Content-Type": "multipart/form-data" },
+async function getImport(serviceKey: string, id: string, office?: string): Promise<IImport> {
+  const { data } = await api.get(`/services/${serviceKey}/imports/${id}`, {
+    params: { office },
   });
   return data;
 }
 
-async function getImportFile(serviceKey: string, id: string): Promise<Blob> {
+async function createImport(serviceKey: string, file: File, office?: string): Promise<IImport> {
+  const form = new FormData();
+  form.append("file", file);
+  const { data } = await api.post(`/services/${serviceKey}/imports`, form, {
+    headers: { "Content-Type": "multipart/form-data" },
+    params: { office },
+  });
+  return data;
+}
+
+async function getImportFile(serviceKey: string, id: string, office?: string): Promise<Blob> {
   const { data } = await api.get(`/services/${serviceKey}/imports/${id}/file`, {
+    params: { office },
     responseType: "blob",
   });
   return data;

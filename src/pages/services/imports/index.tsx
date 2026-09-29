@@ -35,7 +35,7 @@ const PERIOD_OPTIONS = [
   { v: "30d", l: "Últimos 30 dias" },
 ];
 
-function ImportList({ service }: { service: IServiceDefinition }) {
+function ImportList({ service, office }: { service: IServiceDefinition; office?: string }) {
   const navigate = useNavigate();
   const serviceKey = service.key;
 
@@ -67,6 +67,7 @@ function ImportList({ service }: { service: IServiceDefinition }) {
     api.imports
       .getImports({
         serviceKey,
+        office,
         page: pagination.pageIndex + 1,
         limit: pagination.pageSize,
         status: status !== "all" ? status : undefined,
@@ -87,13 +88,17 @@ function ImportList({ service }: { service: IServiceDefinition }) {
       .finally(() => setIsLoading(false));
 
     return () => controller.abort();
-  }, [serviceKey, pagination, sorting, status, period]);
+  }, [serviceKey, office, pagination, sorting, status, period]);
 
   return (
     <div className="flex flex-col gap-3 min-h-[480px]">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <p className="text-sm text-muted-foreground">Importações enviadas pelo seu escritório.</p>
-        <Button onClick={() => navigate(`/services/${serviceKey}/imports/new`)}>
+        <p className="text-sm text-muted-foreground">Importações enviadas por este escritório.</p>
+        <Button
+          onClick={() =>
+            navigate(`/services/${serviceKey}/imports/new${office ? `?office=${office}` : ""}`)
+          }
+        >
           <Plus className="size-4" />
           Nova importação
         </Button>
@@ -153,7 +158,9 @@ function ImportList({ service }: { service: IServiceDefinition }) {
           setPagination((p) => ({ ...p, pageIndex: 0 }));
         }}
         isLoading={isLoading}
-        onRowClick={(row) => navigate(`/services/${serviceKey}/imports/${row.id}`)}
+        onRowClick={(row) =>
+          navigate(`/services/${serviceKey}/imports/${row.id}${office ? `?office=${office}` : ""}`)
+        }
       />
     </div>
   );
@@ -161,6 +168,8 @@ function ImportList({ service }: { service: IServiceDefinition }) {
 
 export default function Page() {
   return (
-    <ServicePage require="import">{({ service }) => <ImportList service={service} />}</ServicePage>
+    <ServicePage require="import">
+      {({ service, office }) => <ImportList service={service} office={office} />}
+    </ServicePage>
   );
 }

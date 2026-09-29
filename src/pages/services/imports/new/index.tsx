@@ -9,11 +9,13 @@ import { TemplateDownloadButton } from "@/components/imports/template-download-b
 import { UploadWindowBanner } from "@/components/imports/upload-window-banner";
 import { ValidationErrorsTable } from "@/components/imports/validation-errors-table";
 import { XlsxDropzone } from "@/components/imports/xlsx-dropzone";
+import { OfficePicker } from "@/components/office-picker";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useOffice } from "@/hooks/use-office";
 import { useService } from "@/hooks/use-service";
 import { useUploadWindow } from "@/hooks/use-upload-window";
 import { IImport, IValidationError } from "@/service/types/Import";
@@ -23,6 +25,7 @@ const MAX_SIZE_MB = 10;
 export default function Page() {
   const navigate = useNavigate();
   const { serviceKey, service, isLoading: serviceLoading, notFound } = useService();
+  const officeState = useOffice(service);
   const { isOpen: windowOpen } = useUploadWindow();
 
   const [todaysImport, setTodaysImport] = useState<IImport | null>(null);
@@ -36,12 +39,12 @@ export default function Page() {
   }, [notFound]);
 
   useEffect(() => {
-    if (!service || !serviceKey) return;
+    if (!service || !serviceKey || !officeState.ready) return;
     api.imports
-      .getImports({ serviceKey, page: 1, limit: 1, period: "today" })
+      .getImports({ serviceKey, office: officeState.office, page: 1, limit: 1, period: "today" })
       .then((res) => setTodaysImport(res.todays_import))
       .catch(() => {});
-  }, [service, serviceKey]);
+  }, [service, serviceKey, officeState.office, officeState.ready]);
 
   function handleFileChange(next: File | null) {
     setFileError(null);
@@ -68,11 +71,11 @@ export default function Page() {
     setIsSubmitting(true);
     setErrors(null);
     try {
-      await api.imports.createImport(serviceKey, file);
+      await api.imports.createImport(serviceKey, file, officeState.office);
       toast.success(
         "Planilha enviada com sucesso. Ela será consolidada e enviada ao RPA às 18h."
       );
-      navigate(`/services/${serviceKey}/imports`);
+      navigate(`/services/${serviceKey}/imports${officeState.office ? `?office=${officeState.office}` : ""}`);
     } catch (error: any) {
       const data = error?.response?.data;
       if (error?.response?.status === 400 && Array.isArray(data?.errors)) {
@@ -104,68 +107,87 @@ export default function Page() {
 
   return (
     <div className="container mx-auto py-2 max-w-3xl flex flex-col gap-4">
-      <div className="flex flex-col">
-        <h1 className="text-2xl">Nova importação — {service!.name}</h1>
-        {service!.description && (
-          <p className="text-sm text-muted-foreground">{service!.description}</p>
-        )}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl">Nova importação — {service!.name}</h1>
+          {service!.description && (
+            <p className="text-sm text-muted-foreground">{service!.description}</p>
+          )}
+        </div>
+        <OfficePicker officeState={officeState} />
       </div>
 
-      <UploadWindowBanner />
-      <ReplacementAlert todaysImport={todaysImport} />
+      {!officeState.ready ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            {officeState.offices.length
+              ? "Selecione um escritório para continuar."
+              : "Nenhum escritório contratou este serviço."}
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          <UploadWindowBanner />
+          <ReplacementAlert todaysImport={todaysImport} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Layout esperado da planilha</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3">
-          <LayoutSpecTable columns={service!.layout?.columns ?? []} />
-          <p className="text-sm text-muted-foreground">
-            A primeira linha da planilha deve conter exatamente os cabeçalhos acima.
-            Formato aceito: .xlsx.
-          </p>
-          <div>
-            <TemplateDownloadButton serviceKey={serviceKey!} />
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Layout esperado da planilha</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <LayoutSpecTable columns={service!.layout?.columns ?? []} />
+              <p className="text-sm text-muted-foreground">
+                A primeira linha da planilha deve conter exatamente os cabeçalhos acima.
+                Formato aceito: .xlsx.
+              </p>
+              <div>
+                <TemplateDownloadButton serviceKey={serviceKey!} />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Arquivo</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2">
+              <XlsxDropzone file={file} onFileChange={handleFileChange} disabled={disabled} />
+              {fileError && <p className="text-sm text-destructive">{fileError}</p>}
+            </CardContent>
+          </Card>
+
+          {errors && errors.length > 0 && (
+            <Alert variant="destructive">
+              <AlertTitle>
+                A planilha contém {errors.length} erro(s) e não foi importada.
+              </AlertTitle>
+              <AlertDescription>
+                Corrija os problemas abaixo e envie novamente.
+              </AlertDescription>
+            </Alert>
+          )}
+          {errors && errors.length > 0 && <ValidationErrorsTable errors={errors} />}
+
+          <Separator />
+          <div className="flex justify-end gap-2 pb-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() =>
+                navigate(
+                  `/services/${serviceKey}/imports${officeState.office ? `?office=${officeState.office}` : ""}`
+                )
+              }
+            >
+              Cancelar
+            </Button>
+            <Button type="button" onClick={handleSubmit} disabled={disabled}>
+              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+              {isSubmitting ? "Validando planilha..." : "Enviar planilha"}
+            </Button>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Arquivo</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-2">
-          <XlsxDropzone file={file} onFileChange={handleFileChange} disabled={disabled} />
-          {fileError && <p className="text-sm text-destructive">{fileError}</p>}
-        </CardContent>
-      </Card>
-
-      {errors && errors.length > 0 && (
-        <Alert variant="destructive">
-          <AlertTitle>
-            A planilha contém {errors.length} erro(s) e não foi importada.
-          </AlertTitle>
-          <AlertDescription>
-            Corrija os problemas abaixo e envie novamente.
-          </AlertDescription>
-        </Alert>
+        </>
       )}
-      {errors && errors.length > 0 && <ValidationErrorsTable errors={errors} />}
-
-      <Separator />
-      <div className="flex justify-end gap-2 pb-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => navigate(`/services/${serviceKey}/imports`)}
-        >
-          Cancelar
-        </Button>
-        <Button type="button" onClick={handleSubmit} disabled={disabled}>
-          {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-          {isSubmitting ? "Validando planilha..." : "Enviar planilha"}
-        </Button>
-      </div>
     </div>
   );
 }
