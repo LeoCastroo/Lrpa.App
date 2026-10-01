@@ -2,13 +2,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatNumber } from "@/lib/time";
 import { IInsightMetric } from "@/service/types/Panel";
 
+const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
 /**
  * Card de métrica de resultado específico do RPA — igual em estrutura ao KpiCards genérico, mas
  * cada um traz sua própria frase de valor (headline) em vez de um rótulo fixo de status.
  */
 export function InsightMetricCard({ metric }: { metric: IInsightMetric }) {
   const value =
-    metric.format === "percent" ? `${metric.value.toLocaleString("pt-BR")}%` : formatNumber(metric.value);
+    metric.format === "percent"
+      ? `${metric.value.toLocaleString("pt-BR")}%`
+      : metric.format === "currency"
+        ? currencyFormatter.format(metric.value)
+        : formatNumber(metric.value);
 
   return (
     <Card className="py-0">

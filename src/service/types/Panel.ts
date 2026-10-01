@@ -88,7 +88,7 @@ export interface IInsightMetric {
   label: string;
   value: number;
   headline?: string;
-  format?: "number" | "percent";
+  format?: "number" | "percent" | "currency";
   percentOf?: number | null;
 }
 
