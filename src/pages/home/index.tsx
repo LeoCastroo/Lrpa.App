@@ -57,6 +57,15 @@ const iconByKey: Record<string, LucideIcon> = {
   UNIDAS_TASK_REGISTER_VALUES: ReceiptText,
   UNIDAS_TASK_PAYMENT_INVOICE: ReceiptText,
   UNIDAS_TASK_VERIFY_ACCIDENT_CLAIM: CalendarClock,
+  LOCALIZA_TASKS: ListTodo,
+  LOCALIZA_PROCESS_CLOSURE: Gavel,
+  LOCALIZA_UPLOAD_DOCUMENTS: FileUp,
+  LOCALIZA_DOWNLOAD_DOCUMENTS: FileDown,
+  LOCALIZA_TASKS_NOTIFY: ListChecks,
+  LOCALIZA_UPDATE_BATCH: ListChecks,
+  LOCALIZA_TASKS_BATCH: ListTodo,
+  LOCALIZA_REFUNDS: ReceiptText,
+  LOCALIZA_WORKFLOW_ELAW: Workflow,
 };
 
 export default function Page() {
