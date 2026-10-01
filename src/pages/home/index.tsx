@@ -50,6 +50,13 @@ const iconByKey: Record<string, LucideIcon> = {
   BMG_CITE_SE_PRAZOS: CalendarClock,
   BMG_CITE_SE_COPIA_INTEGRAL: FileDown,
   BMG_CITE_SE_LAKE: Database,
+  UNIDAS_TASKS: ListTodo,
+  UNIDAS_PROCESS_CLOSURE: Gavel,
+  UNIDAS_UPDATE_BATCH: ListChecks,
+  UNIDAS_TASK_SUBSIDIES: FileUp,
+  UNIDAS_TASK_REGISTER_VALUES: ReceiptText,
+  UNIDAS_TASK_PAYMENT_INVOICE: ReceiptText,
+  UNIDAS_TASK_VERIFY_ACCIDENT_CLAIM: CalendarClock,
 };
 
 export default function Page() {
