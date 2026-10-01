@@ -3,7 +3,20 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useUploadWindow } from "@/hooks/use-upload-window";
 
 export function UploadWindowBanner({ compact = false }: { compact?: boolean }) {
-  const { isOpen, opensAt, closesAt } = useUploadWindow();
+  const { isOpen, opensAt, closesAt, isAdminBypass } = useUploadWindow();
+
+  if (isAdminBypass) {
+    return (
+      <Alert>
+        <Clock />
+        {!compact && <AlertTitle>Envios abertos</AlertTitle>}
+        <AlertDescription>
+          Como administrador, você pode enviar planilhas a qualquer horário — a janela das{" "}
+          {opensAt} às {closesAt} vale só para o escritório.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   if (isOpen) {
     return (
