@@ -15,6 +15,9 @@ jobs:
     env:
       # Faz src/service/api.ts resolver para https://api.lrpa.com.br (não api-hml...).
       APP_ENV: prd
+      # DSN do Sentry (plano free) — embutido no build via vite.config.ts. Secret vazio = Sentry
+      # desligado no bundle gerado (no-op seguro).
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
     steps:
       - uses: actions/checkout@v4
 

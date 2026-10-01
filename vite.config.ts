@@ -40,5 +40,7 @@ export default defineConfig({
   },
   define: {
     "process.env.APP_ENV": JSON.stringify(process.env.APP_ENV || "local"),
+    // DSN do Sentry (plano free: sentry.io), embutido no build. Vazio = Sentry desligado.
+    "process.env.SENTRY_DSN": JSON.stringify(process.env.SENTRY_DSN || ""),
   },
 });
