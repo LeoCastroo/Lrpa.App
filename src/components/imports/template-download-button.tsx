@@ -7,9 +7,11 @@ import { downloadBlob } from "@/lib/download";
 
 export function TemplateDownloadButton({
   serviceKey,
+  office,
   fileName,
 }: {
   serviceKey: string;
+  office?: string;
   fileName?: string;
 }) {
   const [loading, setLoading] = useState(false);
@@ -17,7 +19,7 @@ export function TemplateDownloadButton({
   async function handleDownload() {
     try {
       setLoading(true);
-      const blob = await api.services.getTemplate(serviceKey);
+      const blob = await api.services.getTemplate(serviceKey, office);
       downloadBlob(blob, fileName ?? `modelo-${serviceKey}.xlsx`);
     } catch {
       toast.error("Não foi possível baixar o modelo.");

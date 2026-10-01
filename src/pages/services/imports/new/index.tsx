@@ -141,7 +141,7 @@ export default function Page() {
                 Formato aceito: .xlsx.
               </p>
               <div>
-                <TemplateDownloadButton serviceKey={serviceKey!} />
+                <TemplateDownloadButton serviceKey={serviceKey!} office={officeState.office} />
               </div>
             </CardContent>
           </Card>

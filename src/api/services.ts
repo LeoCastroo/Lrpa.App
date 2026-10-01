@@ -6,8 +6,9 @@ async function getServices(): Promise<IServiceDefinition[]> {
   return data;
 }
 
-async function getTemplate(serviceKey: string): Promise<Blob> {
+async function getTemplate(serviceKey: string, office?: string): Promise<Blob> {
   const { data } = await api.get(`/services/${serviceKey}/template`, {
+    params: { office },
     responseType: "blob",
   });
   return data;
