@@ -8,6 +8,7 @@ const initialUser: IUserContext = {
   email: "",
   role: "",
   office: null,
+  hasVaultAccess: false,
 };
 
 interface UserStore {

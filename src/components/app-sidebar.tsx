@@ -5,6 +5,7 @@ import {
   FileSpreadsheet,
   FileUp,
   Gavel,
+  KeyRound,
   LayoutDashboard,
   ListChecks,
   ListTodo,
@@ -97,6 +98,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             { title: "Central de Pendências", url: "/pendencies", icon: ListTodo },
             ...(user.role === "ADMIN"
               ? [{ title: "Usuários", url: "/users", icon: Users }]
+              : []),
+            ...(user.role === "ADMIN" || user.hasVaultAccess
+              ? [{ title: "Cofre de Credenciais", url: "/credentials", icon: KeyRound }]
               : []),
           ]}
         />

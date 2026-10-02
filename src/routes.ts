@@ -14,6 +14,7 @@ import ImportList from "./pages/services/imports";
 import ImportNew from "./pages/services/imports/new";
 import ImportDetails from "./pages/services/imports/details";
 import Users from "./pages/users";
+import Credentials from "./pages/credentials";
 import ServiceJurimetria from "./pages/services/jurimetria";
 import ServiceProcessos from "./pages/services/processos";
 import ServiceProcessoDetails from "./pages/services/processos/details";
@@ -48,6 +49,11 @@ const routes = {
       path: "/users",
       Page: Users,
       title: "Usuários",
+    },
+    {
+      path: "/credentials",
+      Page: Credentials,
+      title: "Cofre de Credenciais",
     },
     {
       path: "/account",
