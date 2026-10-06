@@ -11,6 +11,10 @@ export function todayInSaoPaulo(): string {
   return dayjs().tz(TZ).format("YYYY-MM-DD");
 }
 
+export function hourInSaoPaulo(): number {
+  return dayjs().tz(TZ).hour();
+}
+
 export function daysAgoInSaoPaulo(days: number): string {
   return dayjs().tz(TZ).subtract(days, "day").format("YYYY-MM-DD");
 }

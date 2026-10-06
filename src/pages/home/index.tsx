@@ -17,12 +17,12 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ServiceCard } from "@/components/home/service-card";
-import { UploadWindowBanner } from "@/components/imports/upload-window-banner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { groupServicesByClient } from "@/lib/group-by-client";
+import { hourInSaoPaulo } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useServicesStore, useUserStore } from "@/store";
 
@@ -67,9 +67,10 @@ const iconByKey: Record<string, LucideIcon> = {
   LOCALIZA_WORKFLOW_ELAW: Workflow,
 };
 
-function greeting(hour: number) {
-  if (hour < 12) return "Bom dia";
-  if (hour < 18) return "Boa tarde";
+function greeting() {
+  const hour = hourInSaoPaulo();
+  if (hour >= 5 && hour < 12) return "Bom dia";
+  if (hour >= 12 && hour < 18) return "Boa tarde";
   return "Boa noite";
 }
 
@@ -140,7 +141,7 @@ export default function Page() {
               <p className="text-sm font-medium text-primary">{user.office.name}</p>
             )}
             <h1 className="text-2xl sm:text-3xl font-semibold">
-              {greeting(new Date().getHours())}
+              {greeting()}
               {firstName ? `, ${firstName}` : ""}
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -179,8 +180,6 @@ export default function Page() {
           )}
         </div>
       </section>
-
-      {services.some((s) => s.capabilities?.import) && <UploadWindowBanner />}
 
       {allGroups.length > 1 && (
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por cliente">
