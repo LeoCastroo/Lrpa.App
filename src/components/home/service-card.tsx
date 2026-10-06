@@ -1,6 +1,7 @@
-import { ArrowRight, type LucideIcon } from "lucide-react";
+import { ArrowRight, CheckCircle2, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { IServiceDefinition } from "@/service/types/Service";
 
 function capabilityLabels(service: IServiceDefinition): string[] {
@@ -12,7 +13,16 @@ function capabilityLabels(service: IServiceDefinition): string[] {
   return labels;
 }
 
-export function ServiceCard({ service, icon: Icon }: { service: IServiceDefinition; icon: LucideIcon }) {
+export function ServiceCard({
+  service,
+  icon: Icon,
+  highlight,
+}: {
+  service: IServiceDefinition;
+  icon: LucideIcon;
+  /** Frase curta de resultado (ex.: "1.118 andamentos nos últimos 30 dias"). Omitida quando não há volume. */
+  highlight?: string;
+}) {
   const labels = capabilityLabels(service);
 
   return (
@@ -33,8 +43,15 @@ export function ServiceCard({ service, icon: Icon }: { service: IServiceDefiniti
         <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground opacity-50 transition-all group-hover:translate-x-0.5 group-hover:text-primary group-hover:opacity-100 group-focus-visible:opacity-100" />
       </div>
 
+      {highlight && (
+        <p className="mt-auto flex items-center gap-1.5 text-sm font-medium text-success">
+          <CheckCircle2 className="size-4 shrink-0" />
+          <span className="min-w-0">{highlight}</span>
+        </p>
+      )}
+
       {labels.length > 0 && (
-        <div className="mt-auto flex flex-wrap gap-1.5">
+        <div className={cn("flex flex-wrap gap-1.5", !highlight && "mt-auto")}>
           {labels.map((label) => (
             <Badge key={label} variant="secondary" className="font-normal">
               {label}

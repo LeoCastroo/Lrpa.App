@@ -1,11 +1,14 @@
-import { ArrowLeft } from "lucide-react";
-import { useMemo } from "react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import api from "@/api";
 import { ServiceCard } from "@/components/home/service-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { categoryIcon, serviceIcon } from "@/lib/service-icons";
+import { formatNumber } from "@/lib/time";
+import { IClientResults } from "@/service/types/Client";
 import { IServiceCategory, IServiceDefinition } from "@/service/types/Service";
 import { useServicesStore } from "@/store";
 
@@ -33,6 +36,23 @@ function groupByCategory(services: IServiceDefinition[]): CategoryGroup[] {
   return [...groups.values()].sort((a, b) => a.category.order - b.category.order);
 }
 
+function categoryTotal(results: IClientResults | null, categoryKey: string): number {
+  return results?.categories[categoryKey] ?? 0;
+}
+
+// Só devolve texto quando há volume: serviço sem resultado no período fica sem frase (nunca "0").
+function serviceHighlight(
+  service: IServiceDefinition,
+  results: IClientResults | null,
+  windowLabel: string
+): string | undefined {
+  const items = results?.services[service.key] ?? 0;
+  if (items <= 0) return undefined;
+  const unit = service.panel?.unit;
+  const noun = unit ? (items === 1 ? unit.singular : unit.plural) : items === 1 ? "item" : "itens";
+  return `${formatNumber(items)} ${noun} ${windowLabel}`;
+}
+
 export default function Page() {
   const { clientKey } = useParams();
   const { services, status } = useServicesStore();
@@ -45,6 +65,24 @@ export default function Page() {
   );
   const groups = useMemo(() => groupByCategory(clientServices), [clientServices]);
   const client = clientServices[0]?.client;
+
+  const [results, setResults] = useState<IClientResults | null>(null);
+
+  // Os números são um complemento: se a consulta falhar, a página continua igual, só sem eles.
+  useEffect(() => {
+    if (!clientKey) return;
+    let cancelled = false;
+    setResults(null);
+    api.clients
+      .getResults(clientKey)
+      .then((data) => !cancelled && setResults(data))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [clientKey]);
+
+  const windowLabel = results?.windowDays ? `nos últimos ${results.windowDays} dias` : "no período";
 
   if (status === "loading") {
     return (
@@ -102,6 +140,12 @@ export default function Page() {
               {clientServices.length} {clientServices.length === 1 ? "serviço" : "serviços"} em{" "}
               {groups.length} {groups.length === 1 ? "área" : "áreas"} de atuação
             </p>
+            {results && results.total > 0 && (
+              <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-success">
+                <CheckCircle2 className="size-4 shrink-0" />
+                {formatNumber(results.total)} itens processados com sucesso {windowLabel}
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -115,14 +159,24 @@ export default function Page() {
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Icon className="size-5" />
                 </span>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <h2 className="text-base font-semibold leading-tight">{category.name}</h2>
                   <p className="text-sm text-muted-foreground">{category.description}</p>
                 </div>
+                {categoryTotal(results, category.key) > 0 && (
+                  <span className="shrink-0 rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-medium tabular-nums text-success">
+                    {formatNumber(categoryTotal(results, category.key))} itens
+                  </span>
+                )}
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {categoryServices.map((s) => (
-                  <ServiceCard key={s.key} service={s} icon={serviceIcon(s.key)} />
+                  <ServiceCard
+                    key={s.key}
+                    service={s}
+                    icon={serviceIcon(s.key)}
+                    highlight={serviceHighlight(s, results, windowLabel)}
+                  />
                 ))}
               </div>
             </section>

@@ -6,6 +6,7 @@ import { default as pendencies } from "./pendencies";
 import { default as users } from "./users";
 import { default as lake } from "./lake";
 import { default as credentials } from "./credentials";
+import { default as clients } from "./clients";
 
 export interface Pagination {
   page: number;
@@ -23,4 +24,5 @@ export default {
   users,
   lake,
   credentials,
+  clients,
 };
