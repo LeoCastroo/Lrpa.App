@@ -1,71 +1,16 @@
-import {
-  CalendarClock,
-  Database,
-  FileDown,
-  FileSpreadsheet,
-  FileUp,
-  Gavel,
-  ListChecks,
-  ListTodo,
-  MailCheck,
-  ReceiptText,
-  Scale,
-  Search,
-  Workflow,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { ServiceCard } from "@/components/home/service-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { groupServicesByClient } from "@/lib/group-by-client";
+import { serviceIcon } from "@/lib/service-icons";
 import { hourInSaoPaulo } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { useServicesStore, useUserStore } from "@/store";
-
-const iconByKey: Record<string, LucideIcon> = {
-  BMG_UPDATES_BATCH: ListChecks,
-  BMG_WORKFLOWS_BATCH: Workflow,
-  BMG_MESSAGES_READ: MailCheck,
-  BMG_DOWNLOAD_DOCUMENTS: FileDown,
-  BMG_REGISTER_LAW_SUIT: Scale,
-  BMG_UPLOAD_DOCUMENTS: FileUp,
-  BMG_UPDATES_DEFENSE: Gavel,
-  BMG_UPDATES_AUDIENCES: CalendarClock,
-  MERCANTIL_REGISTER_LAW_SUIT: Scale,
-  MERCANTIL_UPDATES: Gavel,
-  MERCANTIL_UPLOAD_DOCUMENTS: FileUp,
-  MERCANTIL_REFUNDS: ReceiptText,
-  MERCANTIL_BATCH_UPDATES: ListChecks,
-  INTER_REGISTER_LAW_SUIT: Scale,
-  INTER_UPLOAD_DOCUMENTS: FileUp,
-  INTER_REFUNDS: ReceiptText,
-  INTER_TASKS: ListTodo,
-  INTER_UPDATES: ListChecks,
-  INTER_APPEAL_TASKS: Gavel,
-  BMG_CITE_SE_PRAZOS: CalendarClock,
-  BMG_CITE_SE_COPIA_INTEGRAL: FileDown,
-  BMG_CITE_SE_LAKE: Database,
-  UNIDAS_TASKS: ListTodo,
-  UNIDAS_PROCESS_CLOSURE: Gavel,
-  UNIDAS_UPDATE_BATCH: ListChecks,
-  UNIDAS_TASK_SUBSIDIES: FileUp,
-  UNIDAS_TASK_REGISTER_VALUES: ReceiptText,
-  UNIDAS_TASK_PAYMENT_INVOICE: ReceiptText,
-  UNIDAS_TASK_VERIFY_ACCIDENT_CLAIM: CalendarClock,
-  LOCALIZA_TASKS: ListTodo,
-  LOCALIZA_PROCESS_CLOSURE: Gavel,
-  LOCALIZA_UPLOAD_DOCUMENTS: FileUp,
-  LOCALIZA_DOWNLOAD_DOCUMENTS: FileDown,
-  LOCALIZA_TASKS_NOTIFY: ListChecks,
-  LOCALIZA_UPDATE_BATCH: ListChecks,
-  LOCALIZA_TASKS_BATCH: ListTodo,
-  LOCALIZA_REFUNDS: ReceiptText,
-  LOCALIZA_WORKFLOW_ELAW: Workflow,
-};
 
 function greeting() {
   const hour = hourInSaoPaulo();
@@ -258,14 +203,16 @@ export default function Page() {
                   {clientServices.length} {clientServices.length === 1 ? "serviço" : "serviços"}
                 </span>
                 <span className="ml-1 h-px flex-1 bg-border" />
+                <Link
+                  to={`/clients/${client.key}`}
+                  className="inline-flex shrink-0 items-center gap-1 text-sm text-primary hover:underline"
+                >
+                  Ver cliente <ArrowRight className="size-3.5" />
+                </Link>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {clientServices.map((s) => (
-                  <ServiceCard
-                    key={s.key}
-                    service={s}
-                    icon={iconByKey[s.key] ?? FileSpreadsheet}
-                  />
+                  <ServiceCard key={s.key} service={s} icon={serviceIcon(s.key)} />
                 ))}
               </div>
             </section>

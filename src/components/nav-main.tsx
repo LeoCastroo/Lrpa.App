@@ -12,8 +12,11 @@ import {
 export function NavMain({
   items,
   title,
+  titleUrl,
 }: {
   title?: string;
+  /** Quando informado, o título da seção vira um link (ex.: página do cliente). */
+  titleUrl?: string;
   items: {
     title: string;
     url: string;
@@ -24,7 +27,16 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      {title && <SidebarGroupLabel>{title}</SidebarGroupLabel>}
+      {title &&
+        (titleUrl ? (
+          <SidebarGroupLabel asChild>
+            <Link to={titleUrl} className="hover:text-sidebar-foreground">
+              {title}
+            </Link>
+          </SidebarGroupLabel>
+        ) : (
+          <SidebarGroupLabel>{title}</SidebarGroupLabel>
+        ))}
       <SidebarMenu>
         {items.map((item) => {
           const isActive =

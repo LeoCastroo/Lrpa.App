@@ -117,6 +117,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <NavMain
               key={client.key}
               title={client.name}
+              titleUrl={`/clients/${client.key}`}
               items={clientServices.map((s) => ({
                 title: s.name,
                 url: `/services/${s.key}`,

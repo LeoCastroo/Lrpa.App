@@ -57,6 +57,14 @@ export interface IServiceClient {
   name: string;
 }
 
+export interface IServiceCategory {
+  key: string;
+  name: string;
+  description: string;
+  /** Posição do grupo na página do cliente. */
+  order: number;
+}
+
 export interface IServiceDefinition {
   key: string;
   name: string;
@@ -64,6 +72,8 @@ export interface IServiceDefinition {
   capabilities: IServiceCapabilities;
   /** Cliente final por trás do RPA (ex.: BMG). Agrupa a navegação. */
   client: IServiceClient;
+  /** Grupo em linguagem de negócio usado na página do cliente. */
+  category: IServiceCategory;
   /** Presente quando o serviço recebe importação de planilhas. */
   layout?: { columns: ILayoutColumn[] };
   /** Presente quando o serviço tem painel. */
