@@ -1,7 +1,7 @@
 import { CheckCircle2, FileStack, FolderOpen, Wallet, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, kpiValueSize } from "@/lib/utils";
 import { formatDateTime, formatDuration, formatNumber } from "@/lib/time";
 import { IExecution, IPanelSummary } from "@/service/types/Panel";
 import { ExecutionStateBadge } from "./badges";
@@ -116,9 +116,9 @@ function Kpi({
 }) {
   const style = KPI_TONES[tone];
   return (
-    <Card className={cn("py-0 border-l-4", style.border)}>
-      <CardContent className="flex flex-col gap-3 p-5">
-        <div className="flex items-center gap-2.5">
+    <Card className={cn("py-0 border-l-4 min-w-0", style.border)}>
+      <CardContent className="flex flex-col gap-3 p-5 min-w-0">
+        <div className="flex items-center gap-2.5 min-w-0">
           <span
             className={cn(
               "flex size-10 shrink-0 items-center justify-center rounded-lg",
@@ -129,8 +129,15 @@ function Kpi({
           </span>
           <span className="text-sm font-medium text-muted-foreground">{label}</span>
         </div>
-        <div className="flex flex-col gap-0.5">
-          <span className={cn("text-3xl font-semibold tabular-nums leading-none", style.value)}>
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <span
+            className={cn(
+              "font-semibold tabular-nums leading-none truncate",
+              kpiValueSize(value),
+              style.value
+            )}
+            title={value}
+          >
             {value}
           </span>
           {/* Altura reservada mesmo sem hint, para as 4 cartas ficarem com a mesma altura. */}
