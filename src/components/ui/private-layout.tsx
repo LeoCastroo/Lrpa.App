@@ -8,7 +8,7 @@ import { useDocumentTitle } from "@/hooks/use-document-title";
 import { checkToken, getNewToken } from "@/service/authentication";
 import { useServicesStore, useUserStore } from "@/store";
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 
 type SessionState = "checking" | "ok" | "anonymous" | "expired" | "offline";
 
@@ -16,11 +16,20 @@ export default function PrivateLayout({
   children,
   title,
 }: React.PropsWithChildren & { title: string }) {
-  useDocumentTitle(title);
   const [state, setState] = useState<SessionState>("checking");
   const [attempt, setAttempt] = useState(0);
   const fetchServices = useServicesStore((s) => s.fetch);
+  const services = useServicesStore((s) => s.services);
   const user = useUserStore((s) => s.user);
+
+  // As rotas de serviço e de cliente têm um título genérico ("Visão geral", "Itens", "Cliente"):
+  // o que identifica a tela é o nome do serviço/cliente, que vem do endereço.
+  const { serviceKey, clientKey } = useParams();
+  const service = serviceKey ? services.find((s) => s.key === serviceKey) : undefined;
+  const client = clientKey ? services.find((s) => s.client.key === clientKey)?.client : undefined;
+  const headerTitle = service?.name ?? client?.name ?? title;
+  const section = service ? title : undefined;
+  useDocumentTitle(section ? `${headerTitle} · ${section}` : headerTitle);
 
   useEffect(() => {
     const refreshToken = localStorage.getItem("refresh_token");
@@ -98,7 +107,13 @@ export default function PrivateLayout({
           <div className="flex min-w-0 items-center gap-3">
             <SidebarTrigger className="-ml-1 text-foreground" />
             <Separator orientation="vertical" className="h-5" />
-            <span className="truncate text-sm font-medium">{title}</span>
+            <span className="truncate text-sm font-medium">{headerTitle}</span>
+            {section && (
+              <>
+                <span className="text-muted-foreground">/</span>
+                <span className="truncate text-sm text-muted-foreground">{section}</span>
+              </>
+            )}
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <NavUser user={{ avatar: "", email: user.email, name: user.name }} />
