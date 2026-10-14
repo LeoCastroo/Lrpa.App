@@ -1,13 +1,5 @@
 import api from "@/api";
-import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { loginUser } from "@/service/authentication";
@@ -68,20 +60,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="shadow-2xl">
-        <CardHeader className="text-center">
-          <BrandLogo
-            className="mb-2 justify-center"
-            markClassName="size-11"
-            textClassName="text-2xl"
-          />
-          <CardTitle className="text-lg">Entrar</CardTitle>
-          <CardDescription>
-            Informe seu e-mail e senha para acessar o portal
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">E-mail</Label>
@@ -134,9 +113,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 Fale com a LRPA
               </a>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+      </form>
     </div>
   );
 }

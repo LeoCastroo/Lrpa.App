@@ -1,14 +1,11 @@
 import { ReactNode } from "react";
 import { BrandLogo } from "@/components/brand-logo";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
-/** Moldura das telas sem sessão (login, esqueci a senha, redefinir senha). */
+/**
+ * Moldura das telas sem sessão (login, esqueci a senha, redefinir senha): tela dividida com um
+ * painel "ink" de marca (só em telas largas) e o formulário à direita. No celular fica só o
+ * formulário, com o logo no topo.
+ */
 export function AuthShell({
   title,
   description,
@@ -19,29 +16,37 @@ export function AuthShell({
   children: ReactNode;
 }) {
   return (
-    <div className="relative flex min-h-svh w-full items-center justify-center overflow-hidden p-6 md:p-10">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(600px 400px at 50% -10%, color-mix(in oklch, var(--primary) 16%, transparent), transparent 70%)",
-        }}
-      />
-      <div className="w-full max-w-sm">
-        <Card className="shadow-2xl">
-          <CardHeader className="text-center">
-            <BrandLogo
-              className="mb-2 justify-center"
-              markClassName="size-11"
-              textClassName="text-2xl"
-            />
-            <CardTitle className="text-lg">{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
-          </CardHeader>
-          <CardContent>{children}</CardContent>
-        </Card>
-      </div>
+    <div className="grid min-h-svh w-full lg:grid-cols-2">
+      <aside className="bg-sidebar text-sidebar-foreground relative hidden flex-col justify-between overflow-hidden p-10 lg:flex">
+        <div aria-hidden className="bg-ink-grid pointer-events-none absolute inset-0" />
+        <BrandLogo
+          className="relative"
+          markClassName="size-9"
+          textClassName="text-xl tracking-[0.2em]"
+        />
+        <div className="relative max-w-md">
+          <p className="text-3xl leading-tight font-semibold tracking-tight">
+            Seus processos automatizados, acompanhados em um só lugar.
+          </p>
+          <p className="text-sidebar-foreground/70 mt-4 text-sm">
+            Veja o que os robôs processaram, o que está na fila e o que precisa de atenção.
+          </p>
+        </div>
+        <p className="text-sidebar-foreground/50 relative text-xs">
+          © {new Date().getFullYear()} LRPA
+        </p>
+      </aside>
+
+      <main className="flex items-center justify-center p-6 md:p-10">
+        <div className="w-full max-w-sm">
+          <BrandLogo className="mb-8 lg:hidden" />
+          <div className="mb-6 space-y-1">
+            <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+            <div className="text-muted-foreground text-sm">{description}</div>
+          </div>
+          {children}
+        </div>
+      </main>
     </div>
   );
 }

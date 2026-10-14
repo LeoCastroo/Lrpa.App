@@ -26,11 +26,11 @@ export function BrandMark({ className }: { className?: string }) {
       />
       <circle cx="9" cy="8" r="3" fill="none" stroke={`url(#${gradId})`} strokeWidth="2.4" />
       <circle cx="12.5" cy="23" r="2.6" fill={`url(#${gradId})`} />
-      <circle cx="24" cy="23" r="3" fill="none" stroke="#A78BFA" strokeWidth="2.4" />
+      <circle cx="24" cy="23" r="3" fill="none" stroke="var(--logo-b)" strokeWidth="2.4" />
       <defs>
         <linearGradient id={gradId} x1="6" y1="6" x2="26" y2="26" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#7C6BF0" />
-          <stop offset="1" stopColor="#A78BFA" />
+          <stop style={{ stopColor: "var(--logo-a)" }} />
+          <stop offset="1" style={{ stopColor: "var(--logo-b)" }} />
         </linearGradient>
       </defs>
     </svg>
@@ -50,7 +50,7 @@ export function BrandLogo({
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <BrandMark className={cn("size-8", markClassName)} />
-      <span className={cn("font-display text-lg font-bold tracking-tight", textClassName)}>
+      <span className={cn("font-display text-lg font-semibold tracking-[0.12em]", textClassName)}>
         LRPA
       </span>
     </div>

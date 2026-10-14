@@ -79,25 +79,25 @@ const KPI_TONES: Record<KpiTone, { chip: string; icon: string; value: string; bo
     chip: "bg-primary/10",
     icon: "text-primary",
     value: "text-foreground",
-    border: "border-l-primary/70",
+    border: "border-t-primary/70",
   },
   ok: {
     chip: "bg-success/15",
     icon: "text-success",
     value: "text-success",
-    border: "border-l-success/70",
+    border: "border-t-success/70",
   },
   fail: {
     chip: "bg-destructive/15",
     icon: "text-destructive",
     value: "text-destructive",
-    border: "border-l-destructive/70",
+    border: "border-t-destructive/70",
   },
   info: {
     chip: "bg-info/15",
     icon: "text-info",
     value: "text-foreground",
-    border: "border-l-info/70",
+    border: "border-t-info/70",
   },
 };
 
@@ -116,12 +116,12 @@ function Kpi({
 }) {
   const style = KPI_TONES[tone];
   return (
-    <Card className={cn("py-0 border-l-4 min-w-0", style.border)}>
+    <Card className={cn("py-0 border-t-2 min-w-0", style.border)}>
       <CardContent className="flex flex-col gap-3 p-5 min-w-0">
         <div className="flex items-center gap-2.5 min-w-0">
           <span
             className={cn(
-              "flex size-10 shrink-0 items-center justify-center rounded-lg",
+              "flex size-10 shrink-0 items-center justify-center rounded-md",
               style.chip
             )}
           >

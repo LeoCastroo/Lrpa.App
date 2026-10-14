@@ -119,7 +119,7 @@ export function DataTable<TData, TValue>({
     <div className="flex-1 min-h-0 flex flex-col">
       <div
         className={cn(
-          "bg-card text-card-foreground rounded-md shadow-sm border flex-1 min-h-0 flex flex-col overflow-hidden",
+          "bg-card text-card-foreground rounded-lg border flex-1 min-h-0 flex flex-col overflow-hidden",
           classname
         )}
       >

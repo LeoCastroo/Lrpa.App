@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   Select,
   SelectContent,
@@ -325,13 +326,10 @@ export default function Page() {
 
   return (
     <div className="container mx-auto py-2 flex flex-col gap-4">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl">Usuários</h1>
-          <p className="text-sm text-muted-foreground">
-            Controle quais serviços cada usuário do escritório pode acessar.
-          </p>
-        </div>
+      <PageHeader
+        title="Usuários"
+        description="Controle quais serviços cada usuário do escritório pode acessar."
+      >
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <Select value={office ?? ""} onValueChange={setOffice}>
             <SelectTrigger className="w-full sm:w-56 bg-card">
@@ -349,7 +347,7 @@ export default function Page() {
             <CreateUserDialog office={office} officeServices={officeServices} onCreated={load} />
           )}
         </div>
-      </div>
+      </PageHeader>
 
       <Card>
         <CardHeader>

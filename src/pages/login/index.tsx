@@ -1,3 +1,4 @@
+import { AuthShell } from "@/components/auth-shell";
 import { LoginForm } from "@/components/login-form";
 import { Spinner } from "@/components/ui/spinner";
 import { checkToken } from "@/service/authentication";
@@ -33,18 +34,8 @@ export default function Page() {
   }
 
   return (
-    <div className="relative flex min-h-svh w-full items-center justify-center overflow-hidden p-6 md:p-10">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(600px 400px at 50% -10%, color-mix(in oklch, var(--primary) 16%, transparent), transparent 70%)",
-        }}
-      />
-      <div className="w-full max-w-sm">
-        <LoginForm />
-      </div>
-    </div>
+    <AuthShell title="Entrar" description="Informe seu e-mail e senha para acessar o portal">
+      <LoginForm />
+    </AuthShell>
   );
 }

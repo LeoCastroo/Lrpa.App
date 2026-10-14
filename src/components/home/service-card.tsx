@@ -28,10 +28,10 @@ export function ServiceCard({
   return (
     <Link
       to={`/services/${service.key}`}
-      className="group flex min-w-0 flex-col gap-4 rounded-xl border bg-card p-5 text-card-foreground shadow-sm outline-none transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+      className="group flex min-w-0 flex-col gap-4 rounded-lg border bg-card p-5 text-card-foreground outline-none transition-colors hover:border-primary/60 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
     >
       <div className="flex items-start gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted text-primary">
           <Icon className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
@@ -40,7 +40,7 @@ export function ServiceCard({
             <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{service.description}</p>
           )}
         </div>
-        <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground opacity-50 transition-all group-hover:translate-x-0.5 group-hover:text-primary group-hover:opacity-100 group-focus-visible:opacity-100" />
+        <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground opacity-50 transition-colors group-hover:text-primary group-hover:opacity-100 group-focus-visible:opacity-100" />
       </div>
 
       {highlight && (

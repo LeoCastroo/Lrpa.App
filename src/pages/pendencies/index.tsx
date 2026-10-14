@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateTime } from "@/lib/time";
 import { IPendenciesResponse } from "@/service/types/Pendencies";
@@ -99,13 +100,10 @@ export default function Page() {
 
   return (
     <div className="container mx-auto py-2 flex flex-col gap-4">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl">Central de Pendências</h1>
-          <p className="text-sm text-muted-foreground">
-            O que precisa da sua atenção em todos os serviços, num só lugar.
-          </p>
-        </div>
+      <PageHeader
+        title="Central de Pendências"
+        description="O que precisa da sua atenção em todos os serviços, num só lugar."
+      >
         {officeState.isAdmin && (
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Escritório</span>
@@ -123,7 +121,7 @@ export default function Page() {
             </Select>
           </div>
         )}
-      </div>
+      </PageHeader>
 
       {!officeState.ready ? (
         <Card>

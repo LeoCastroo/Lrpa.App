@@ -5,6 +5,7 @@ import { ServiceCard } from "@/components/home/service-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PageHero } from "@/components/ui/page-hero";
 import { Skeleton } from "@/components/ui/skeleton";
 import { groupServicesByClient } from "@/lib/group-by-client";
 import { serviceIcon } from "@/lib/service-icons";
@@ -71,21 +72,13 @@ export default function Page() {
 
   return (
     <div className="container mx-auto py-2 flex flex-col gap-6">
-      <section className="relative overflow-hidden rounded-xl border bg-card p-6 sm:p-8">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            backgroundImage:
-              "radial-gradient(60% 90% at 100% 0%, color-mix(in oklab, var(--primary) 18%, transparent), transparent)",
-          }}
-        />
-        <div className="relative flex flex-col gap-6">
+      <PageHero>
+        <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-1">
             {user.office?.name && (
               <p className="text-sm font-medium text-primary">{user.office.name}</p>
             )}
-            <h1 className="text-2xl sm:text-3xl font-semibold">
+            <h1 className="text-2xl font-semibold tracking-tight">
               {greeting()}
               {firstName ? `, ${firstName}` : ""}
             </h1>
@@ -124,7 +117,7 @@ export default function Page() {
             </div>
           )}
         </div>
-      </section>
+      </PageHero>
 
       {allGroups.length > 1 && (
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por cliente">
@@ -161,7 +154,7 @@ export default function Page() {
       {status === "loading" ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 w-full rounded-xl" />
+            <Skeleton key={i} className="h-32 w-full rounded-lg" />
           ))}
         </div>
       ) : services.length === 0 ? (
@@ -195,7 +188,7 @@ export default function Page() {
           {visibleGroups.map(({ client, services: clientServices }) => (
             <section key={client.key} className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-xs font-semibold text-primary">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-semibold text-primary">
                   {clientInitials(client.name)}
                 </span>
                 <h2 className="text-base font-semibold">{client.name}</h2>

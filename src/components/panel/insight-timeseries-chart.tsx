@@ -2,11 +2,11 @@ import { formatDay, formatNumber } from "@/lib/time";
 import { IInsightTimeseries } from "@/service/types/Panel";
 
 const SERIES_COLORS = [
-  "bg-primary/70",
-  "bg-amber-500/70",
-  "bg-violet-500/70",
-  "bg-red-500/70",
-  "bg-cyan-500/70",
+  "bg-chart-1/80",
+  "bg-chart-3/80",
+  "bg-chart-2/80",
+  "bg-chart-4/80",
+  "bg-chart-5/80",
 ];
 
 /** Barras empilhadas por dia, com 1 ou mais séries nomeadas (generaliza o DailyBars sucesso/falha). */

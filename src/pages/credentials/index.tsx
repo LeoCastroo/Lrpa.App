@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   Select,
   SelectContent,
@@ -154,14 +155,10 @@ export default function Page() {
 
   return (
     <div className="container mx-auto py-2 flex flex-col gap-4">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl">Cofre de Credenciais</h1>
-          <p className="text-sm text-muted-foreground">
-            Credenciais usadas pelos robôs para logar nos sistemas externos dos clientes.
-            Alterações aqui não atualizam nenhum robô automaticamente.
-          </p>
-        </div>
+      <PageHeader
+        title="Cofre de Credenciais"
+        description="Credenciais usadas pelos robôs para logar nos sistemas externos dos clientes. Alterações aqui não atualizam nenhum robô automaticamente."
+      >
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <Select value={clientKey} onValueChange={(v) => update({ client: v })}>
             <SelectTrigger className="w-full sm:w-56 bg-card">
@@ -182,7 +179,7 @@ export default function Page() {
             onSaved={load}
           />
         </div>
-      </div>
+      </PageHeader>
 
       <Card>
         <CardHeader>

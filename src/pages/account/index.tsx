@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/ui/page-header";
 import { Separator } from "@/components/ui/separator";
 import { ChangePasswordCard } from "@/components/change-password-card";
 import { Theme, useTheme } from "@/hooks/use-theme";
@@ -30,10 +31,7 @@ export default function Page() {
 
   return (
     <div className="container mx-auto py-2 max-w-3xl">
-      <div className="flex flex-col py-2 mb-6">
-        <h1 className="text-2xl">Minha Conta</h1>
-        <p className="text-sm text-muted-foreground">Seus dados e preferências</p>
-      </div>
+      <PageHeader title="Minha Conta" description="Seus dados e preferências" className="mb-6" />
 
       <Card>
         <CardHeader>

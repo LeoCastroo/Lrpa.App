@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { NavUser } from "@/components/nav-user";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { checkToken, getNewToken } from "@/service/authentication";
@@ -12,6 +13,7 @@ type SessionState = "checking" | "ok" | "anonymous" | "expired" | "offline";
 
 export default function PrivateLayout({
   children,
+  title,
 }: React.PropsWithChildren & { title: string }) {
   const [state, setState] = useState<SessionState>("checking");
   const [attempt, setAttempt] = useState(0);
@@ -88,17 +90,19 @@ export default function PrivateLayout({
 
   return (
     <SidebarProvider className="h-svh">
-      <AppSidebar variant="inset" collapsible="icon" />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
+      <AppSidebar variant="sidebar" collapsible="icon" />
+      <SidebarInset className="min-w-0">
+        <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b bg-card px-4 transition-[width,height] ease-linear">
+          <div className="flex min-w-0 items-center gap-3">
             <SidebarTrigger className="-ml-1 text-foreground" />
+            <Separator orientation="vertical" className="h-5" />
+            <span className="truncate text-sm font-medium">{title}</span>
           </div>
-          <div className="flex items-center gap-2 px-4">
+          <div className="flex shrink-0 items-center gap-2">
             <NavUser user={{ avatar: "", email: user.email, name: user.name }} />
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0 min-h-0 overflow-y-auto">
+        <div className="flex flex-1 flex-col gap-4 p-4 sm:p-6 min-h-0 overflow-y-auto">
           {children}
         </div>
       </SidebarInset>

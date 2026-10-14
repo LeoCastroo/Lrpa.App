@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOffice } from "@/hooks/use-office";
 import { useService } from "@/hooks/use-service";
@@ -107,15 +108,9 @@ export default function Page() {
 
   return (
     <div className="container mx-auto py-2 max-w-3xl flex flex-col gap-4">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl">Nova importação — {service!.name}</h1>
-          {service!.description && (
-            <p className="text-sm text-muted-foreground">{service!.description}</p>
-          )}
-        </div>
+      <PageHeader title={`Nova importação — ${service!.name}`} description={service!.description}>
         <OfficePicker officeState={officeState} />
-      </div>
+      </PageHeader>
 
       {!officeState.ready ? (
         <Card>

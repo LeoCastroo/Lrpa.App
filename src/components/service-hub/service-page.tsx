@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOffice, OfficeState } from "@/hooks/use-office";
 import { useService } from "@/hooks/use-service";
@@ -78,13 +79,7 @@ function HubHeader({ service, officeState }: { service: IServiceDefinition; offi
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl">{service.name}</h1>
-          {service.description && (
-            <p className="text-sm text-muted-foreground">{service.description}</p>
-          )}
-        </div>
+      <PageHeader title={service.name} description={service.description} className="border-b-0 pb-0">
         {officeState.isAdmin && (
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Escritório</span>
@@ -102,7 +97,7 @@ function HubHeader({ service, officeState }: { service: IServiceDefinition; offi
             </Select>
           </div>
         )}
-      </div>
+      </PageHeader>
 
       <nav className="flex gap-1 border-b overflow-x-auto">
         {tabs.map((tab) => {

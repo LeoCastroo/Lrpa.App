@@ -84,7 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <BrandMark className="size-8" />
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-medium">{user.office?.name ?? "LRPA"}</span>
-            <span className="font-display truncate text-xs tracking-wide text-muted-foreground">
+            <span className="font-display truncate text-[11px] font-semibold tracking-widest text-sidebar-foreground/60 uppercase">
               LRPA
             </span>
           </div>
@@ -107,8 +107,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         {status === "loading" ? (
           <div className="flex flex-col gap-2 px-2">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full bg-sidebar-accent" />
+            <Skeleton className="h-8 w-full bg-sidebar-accent" />
           </div>
         ) : (
           // Uma seção por cliente final (ex.: BMG) — um novo cliente ganha a própria seção
