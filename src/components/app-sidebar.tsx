@@ -21,7 +21,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="gap-3 p-3">
         <BrandLogo
           markClassName="size-7"
-          textClassName="text-base tracking-[0.18em] group-data-[collapsible=icon]:hidden"
+          textClassName="text-base tracking-[0.12em] group-data-[collapsible=icon]:hidden"
         />
         {user.office?.name && (
           <div className="border-sidebar-border bg-sidebar-accent/40 rounded-md border px-2.5 py-1.5 group-data-[collapsible=icon]:hidden">
