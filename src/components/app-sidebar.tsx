@@ -1,75 +1,14 @@
-import {
-  CalendarClock,
-  Database,
-  FileDown,
-  FileSpreadsheet,
-  FileUp,
-  Gavel,
-  KeyRound,
-  LayoutDashboard,
-  ListChecks,
-  ListTodo,
-  MailCheck,
-  ReceiptText,
-  Scale,
-  Users,
-  Workflow,
-  type LucideIcon,
-} from "lucide-react";
+import { KeyRound, LayoutDashboard, ListTodo, Users } from "lucide-react";
 import * as React from "react";
 
-import { BrandMark } from "@/components/brand-logo";
+import { BrandLogo } from "@/components/brand-logo";
+import { NavClientGroup } from "@/components/nav-client-group";
 import { NavMain } from "@/components/nav-main";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { groupServicesByClient } from "@/lib/group-by-client";
+import { serviceIcon } from "@/lib/service-icons";
 import { useServicesStore, useUserStore } from "@/store";
-
-// Novos serviços ganham um ícone padrão sem precisar de código novo.
-const iconByKey: Record<string, LucideIcon> = {
-  BMG_UPDATES_BATCH: ListChecks,
-  BMG_WORKFLOWS_BATCH: Workflow,
-  BMG_MESSAGES_READ: MailCheck,
-  BMG_DOWNLOAD_DOCUMENTS: FileDown,
-  BMG_REGISTER_LAW_SUIT: Scale,
-  BMG_UPLOAD_DOCUMENTS: FileUp,
-  BMG_UPDATES_DEFENSE: Gavel,
-  BMG_UPDATES_AUDIENCES: CalendarClock,
-  MERCANTIL_REGISTER_LAW_SUIT: Scale,
-  MERCANTIL_UPDATES: Gavel,
-  MERCANTIL_UPLOAD_DOCUMENTS: FileUp,
-  MERCANTIL_REFUNDS: ReceiptText,
-  MERCANTIL_BATCH_UPDATES: ListChecks,
-  INTER_REGISTER_LAW_SUIT: Scale,
-  INTER_UPLOAD_DOCUMENTS: FileUp,
-  INTER_REFUNDS: ReceiptText,
-  INTER_TASKS: ListTodo,
-  INTER_UPDATES: ListChecks,
-  INTER_APPEAL_TASKS: Gavel,
-  BMG_CITE_SE_PRAZOS: CalendarClock,
-  BMG_CITE_SE_COPIA_INTEGRAL: FileDown,
-  BMG_CITE_SE_LAKE: Database,
-  UNIDAS_TASKS: ListTodo,
-  UNIDAS_PROCESS_CLOSURE: Gavel,
-  UNIDAS_UPDATE_BATCH: ListChecks,
-  UNIDAS_TASK_SUBSIDIES: FileUp,
-  UNIDAS_TASK_REGISTER_VALUES: ReceiptText,
-  UNIDAS_TASK_PAYMENT_INVOICE: ReceiptText,
-  UNIDAS_TASK_VERIFY_ACCIDENT_CLAIM: CalendarClock,
-  LOCALIZA_TASKS: ListTodo,
-  LOCALIZA_PROCESS_CLOSURE: Gavel,
-  LOCALIZA_UPLOAD_DOCUMENTS: FileUp,
-  LOCALIZA_DOWNLOAD_DOCUMENTS: FileDown,
-  LOCALIZA_TASKS_NOTIFY: ListChecks,
-  LOCALIZA_UPDATE_BATCH: ListChecks,
-  LOCALIZA_TASKS_BATCH: ListTodo,
-  LOCALIZA_REFUNDS: ReceiptText,
-  LOCALIZA_WORKFLOW_ELAW: Workflow,
-};
-
-function serviceIcon(key: string): LucideIcon {
-  return iconByKey[key] ?? FileSpreadsheet;
-}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useUserStore((s) => s.user);
@@ -79,16 +18,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <div className="flex items-center gap-2 p-2">
-          <BrandMark className="size-8" />
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-medium">{user.office?.name ?? "LRPA"}</span>
-            <span className="font-display truncate text-[11px] font-semibold tracking-widest text-sidebar-foreground/60 uppercase">
-              LRPA
+      <SidebarHeader className="gap-3 p-3">
+        <BrandLogo
+          markClassName="size-7"
+          textClassName="text-base tracking-[0.18em] group-data-[collapsible=icon]:hidden"
+        />
+        {user.office?.name && (
+          <div className="border-sidebar-border bg-sidebar-accent/40 rounded-md border px-2.5 py-1.5 group-data-[collapsible=icon]:hidden">
+            <span className="text-sidebar-foreground/50 block text-[10px] font-semibold tracking-wider uppercase">
+              Escritório
             </span>
+            <span className="block truncate text-sm font-medium">{user.office.name}</span>
           </div>
-        </div>
+        )}
       </SidebarHeader>
 
       <SidebarContent>
@@ -114,8 +56,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           // Uma seção por cliente final (ex.: BMG) — um novo cliente ganha a própria seção
           // automaticamente, sem mudança de código.
           clientGroups.map(({ client, services: clientServices }) => (
-            <NavMain
+            <NavClientGroup
               key={client.key}
+              groupKey={client.key}
               title={client.name}
               titleUrl={`/clients/${client.key}`}
               items={clientServices.map((s) => ({
