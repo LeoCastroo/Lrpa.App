@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { checkToken, getNewToken } from "@/service/authentication";
 import { useServicesStore, useUserStore } from "@/store";
 import { useEffect, useState } from "react";
@@ -15,6 +16,7 @@ export default function PrivateLayout({
   children,
   title,
 }: React.PropsWithChildren & { title: string }) {
+  useDocumentTitle(title);
   const [state, setState] = useState<SessionState>("checking");
   const [attempt, setAttempt] = useState(0);
   const fetchServices = useServicesStore((s) => s.fetch);

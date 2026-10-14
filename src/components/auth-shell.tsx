@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { BrandLogo } from "@/components/brand-logo";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 
 /**
  * Moldura das telas sem sessão (login, esqueci a senha, redefinir senha): tela dividida com um
@@ -15,6 +16,8 @@ export function AuthShell({
   description: ReactNode;
   children: ReactNode;
 }) {
+  useDocumentTitle(title);
+
   return (
     <div className="grid min-h-svh w-full lg:grid-cols-2">
       <aside className="bg-sidebar text-sidebar-foreground relative hidden flex-col justify-between overflow-hidden p-10 lg:flex">

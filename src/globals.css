@@ -223,6 +223,11 @@ body,
   table {
     font-variant-numeric: tabular-nums;
   }
+  /* Ícones Lucide com traço mais fino (1.5 em vez do 2 padrão): o conjunto de ícones é o do
+     shadcn, e o peso do traço é um dos detalhes que mais fazem o sistema parecer "o padrão". */
+  svg.lucide {
+    stroke-width: 1.5;
+  }
 }
 
 @layer utilities {
