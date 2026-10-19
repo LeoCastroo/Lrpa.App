@@ -39,8 +39,27 @@ export interface IUpdateCredentialInput {
 
 export interface ICredentialAuditEntry {
   id: string;
-  action: "CREATE" | "UPDATE" | "VIEW_PASSWORD";
+  action: "CREATE" | "UPDATE" | "VIEW_PASSWORD" | "GRANT" | "REVOKE";
   changed_fields: string[];
   actor: { id: string; name: string };
+  /** GRANT/REVOKE: o usuário que ganhou/perdeu o acesso à credencial. */
+  target?: { id: string; name: string } | null;
   created_at: string;
+}
+
+/** Acesso de um usuário ao Cofre, visto pelo ADMIN: a flag e as credenciais que ele pode receber. */
+export interface IUserVaultAccess {
+  user: { id: string; name: string; email: string };
+  hasVaultAccess: boolean;
+  clients: {
+    key: string;
+    name: string;
+    credentials: {
+      id: string;
+      system: string;
+      username: string;
+      status: "ACTIVE" | "INACTIVE";
+      granted: boolean;
+    }[];
+  }[];
 }

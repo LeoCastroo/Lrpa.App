@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import z from "zod";
 import api from "@/api";
 import { PasswordInput } from "@/components/password-input";
+import { VaultAccessDialog } from "@/components/users/vault-access-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -394,11 +395,14 @@ export default function Page() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <EditServicesDialog
-                          user={u}
-                          officeServices={officeServices}
-                          onSaved={load}
-                        />
+                        <div className="flex items-center justify-end gap-2">
+                          <EditServicesDialog
+                            user={u}
+                            officeServices={officeServices}
+                            onSaved={load}
+                          />
+                          <VaultAccessDialog user={u} />
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

@@ -37,6 +37,12 @@ function formatAuditSentence(entry: ICredentialAuditEntry, clientName: string, s
   if (entry.action === "VIEW_PASSWORD") {
     return `${entry.actor.name} revelou a senha da credencial ${base}.`;
   }
+  if (entry.action === "GRANT") {
+    return `${entry.actor.name} liberou o acesso de ${entry.target?.name ?? "um usuário"} à credencial ${base}.`;
+  }
+  if (entry.action === "REVOKE") {
+    return `${entry.actor.name} retirou o acesso de ${entry.target?.name ?? "um usuário"} à credencial ${base}.`;
+  }
   return `${entry.actor.name} alterou a credencial ${base}${describeFields(entry.changed_fields)}.`;
 }
 
