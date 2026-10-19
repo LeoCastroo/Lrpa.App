@@ -37,9 +37,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain
           items={[
             { title: "Início", url: "/", icon: LayoutDashboard },
-            { title: "Central de Pendências", url: "/pendencies", icon: ListTodo },
             ...(user.role === "ADMIN"
-              ? [{ title: "Usuários", url: "/users", icon: Users }]
+              ? [
+                  { title: "Central de Pendências", url: "/pendencies", icon: ListTodo },
+                  { title: "Usuários", url: "/users", icon: Users },
+                ]
               : []),
             ...(user.role === "ADMIN" || user.hasVaultAccess
               ? [{ title: "Cofre de Credenciais", url: "/credentials", icon: KeyRound }]

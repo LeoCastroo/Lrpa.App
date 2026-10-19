@@ -1,6 +1,6 @@
 import { AlertTriangle, CircleCheck, FileWarning, ListTodo, Wrench } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/api";
 import { Badge } from "@/components/ui/badge";
@@ -70,7 +70,7 @@ function useOfficePicker() {
   };
 }
 
-export default function Page() {
+function PendenciesContent() {
   const officeState = useOfficePicker();
   const [data, setData] = useState<IPendenciesResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -234,4 +234,11 @@ export default function Page() {
       )}
     </div>
   );
+}
+
+/** A Central de Pendências é uma visão interna da operação: somente ADMIN. */
+export default function Page() {
+  const role = useUserStore((s) => s.user.role);
+  if (role !== "ADMIN") return <Navigate to="/" replace />;
+  return <PendenciesContent />;
 }
