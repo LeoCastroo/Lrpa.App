@@ -103,7 +103,7 @@ export function PanelFilters({
         )
       )}
       <div className="flex items-center gap-2">
-        <Button type="submit" variant="secondary" className="flex-1 sm:flex-initial">
+        <Button type="submit" className="flex-1 sm:flex-initial">
           <Search className="size-4" />
           Buscar
         </Button>

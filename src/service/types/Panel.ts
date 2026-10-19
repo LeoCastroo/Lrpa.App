@@ -65,11 +65,18 @@ export interface IFailureReasonDoc {
   action: string;
 }
 
+export interface ISourceReport {
+  sistema: string;
+  id: string;
+  nome: string;
+  descricao?: string;
+}
+
 export interface IRpaDoc {
   updatedAt: string;
   objetivo: string;
   quandoRoda: string;
-  origem: { intro: string; itens: string[] };
+  origem: { intro: string; itens: string[]; relatorio?: ISourceReport };
   passos: string[];
   sucesso: string[];
   falhas: { intro: string; motivos: IFailureReasonDoc[] };

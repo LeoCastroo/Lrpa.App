@@ -60,6 +60,20 @@ function Docs({ service }: { service: IServiceDefinition }) {
       </Section>
 
       <Section title="O que entra no processamento">
+        {docs.origem.relatorio && (
+          <div className="rounded-md border bg-muted/40 p-3 text-sm">
+            <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+              Relatório de origem · {docs.origem.relatorio.sistema}
+            </p>
+            <p className="mt-1">
+              <span className="font-medium">{docs.origem.relatorio.nome}</span>{" "}
+              <span className="text-muted-foreground">(ID {docs.origem.relatorio.id})</span>
+            </p>
+            {docs.origem.relatorio.descricao && (
+              <p className="text-muted-foreground mt-1">{docs.origem.relatorio.descricao}</p>
+            )}
+          </div>
+        )}
         <p>{docs.origem.intro}</p>
         <ul className="list-disc pl-5 flex flex-col gap-1">
           {docs.origem.itens.map((item) => (
