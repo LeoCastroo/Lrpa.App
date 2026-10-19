@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { titleIfTruncated } from "@/lib/truncated-title";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "sidebar-closed-groups";
@@ -93,7 +94,10 @@ export function NavClientGroup({
               return (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
-                    <Link to={item.url}>
+                    <Link
+                      to={item.url}
+                      onMouseEnter={(e) => !rail && titleIfTruncated(e.currentTarget, item.title)}
+                    >
                       {item.icon && <item.icon />}
                       <span>{item.title}</span>
                     </Link>

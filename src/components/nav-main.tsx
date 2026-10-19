@@ -7,7 +7,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
+import { titleIfTruncated } from "@/lib/truncated-title";
 
 export function NavMain({
   items,
@@ -21,6 +23,8 @@ export function NavMain({
   }[];
 }) {
   const { pathname } = useLocation();
+  const { state, isMobile } = useSidebar();
+  const rail = state === "collapsed" && !isMobile;
 
   return (
     <SidebarGroup>
@@ -34,7 +38,10 @@ export function NavMain({
           return (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
-                <Link to={item.url}>
+                <Link
+                  to={item.url}
+                  onMouseEnter={(e) => !rail && titleIfTruncated(e.currentTarget, item.title)}
+                >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </Link>

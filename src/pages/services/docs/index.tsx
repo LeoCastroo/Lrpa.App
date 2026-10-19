@@ -72,6 +72,16 @@ function Docs({ service }: { service: IServiceDefinition }) {
             {docs.origem.relatorio.descricao && (
               <p className="text-muted-foreground mt-1">{docs.origem.relatorio.descricao}</p>
             )}
+            {docs.origem.relatorio.destaque && (
+              <div className="mt-3 border-t pt-3">
+                <p className="font-medium">{docs.origem.relatorio.destaque.titulo}</p>
+                <ul className="mt-1 list-disc pl-5 flex flex-col gap-1">
+                  {docs.origem.relatorio.destaque.itens.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
         <p>{docs.origem.intro}</p>

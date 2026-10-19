@@ -70,6 +70,7 @@ export interface ISourceReport {
   id: string;
   nome: string;
   descricao?: string;
+  destaque?: { titulo: string; itens: string[] };
 }
 
 export interface IRpaDoc {
