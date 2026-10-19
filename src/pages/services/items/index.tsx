@@ -244,14 +244,12 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
         id: "__reason",
         header: "Motivo",
         enableSorting: false,
+        // Absorve a largura que sobra na tela (as demais colunas ficam do tamanho do conteúdo) e
+        // quebra linha em vez de cortar o motivo.
+        meta: { className: "w-full min-w-[240px] whitespace-normal" },
         cell: ({ row }) =>
           row.original.reason ? (
-            <span
-              className="block max-w-[260px] truncate"
-              title={row.original.message ?? undefined}
-            >
-              {row.original.reason.title}
-            </span>
+            <span title={row.original.message ?? undefined}>{row.original.reason.title}</span>
           ) : (
             "—"
           ),

@@ -133,7 +133,7 @@ export function DataTable<TData, TValue>({
                     const sorted = header.column.getIsSorted();
 
                     return (
-                      <TableHead key={header.id}>
+                      <TableHead key={header.id} className={header.column.columnDef.meta?.className}>
                         {header.isPlaceholder ? null : (
                           <div
                             className={
@@ -183,7 +183,7 @@ export function DataTable<TData, TValue>({
                     onClick={() => onRowClick?.(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className={cell.column.columnDef.meta?.className}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
