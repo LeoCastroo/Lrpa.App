@@ -1,5 +1,5 @@
 import axios from "axios";
-import { checkToken, getNewToken } from "./authentication";
+import { checkToken, getNewToken, saveTokens } from "./authentication";
 
 const env = process.env.APP_ENV ?? "hml";
 const apiPrefix = env == "prd" ? "api" : `api-${env}`;
@@ -51,8 +51,7 @@ const refreshTokenInterceptor = async (req: any) => {
 
     refreshTokenPromise = getNewToken()
       .then((data) => {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("refresh_token", data.refresh_token);
+        saveTokens(data);
         pendingRequests.forEach(({ resolve }) => resolve(data.token));
       })
       .catch((e) => {

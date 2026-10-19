@@ -5,7 +5,8 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useDocumentTitle } from "@/hooks/use-document-title";
-import { checkToken, getNewToken } from "@/service/authentication";
+import api from "@/api";
+import { checkToken, getNewToken, saveTokens } from "@/service/authentication";
 import { useServicesStore, useUserStore } from "@/store";
 import { useEffect, useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
@@ -21,6 +22,7 @@ export default function PrivateLayout({
   const fetchServices = useServicesStore((s) => s.fetch);
   const services = useServicesStore((s) => s.services);
   const user = useUserStore((s) => s.user);
+  const setUser = useUserStore((s) => s.setUser);
 
   // As rotas de serviço e de cliente têm um título genérico ("Visão geral", "Itens", "Cliente"):
   // o que identifica a tela é o nome do serviço/cliente, que vem do endereço.
@@ -46,8 +48,7 @@ export default function PrivateLayout({
     setState("checking");
     getNewToken()
       .then((data) => {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("refresh_token", data.refresh_token);
+        saveTokens(data);
         setState("ok");
       })
       .catch((error) => {
@@ -72,6 +73,18 @@ export default function PrivateLayout({
       fetchServices();
     }
   }, [isAuthenticated, fetchServices]);
+
+  // Sessão válida mas sem dados do usuário (ex.: estado local apagado em outra aba): recarrega do
+  // servidor em vez de deixar o menu e o cabeçalho vazios. Se falhar por 401, o interceptor
+  // encerra a sessão e leva ao login.
+  useEffect(() => {
+    if (isAuthenticated && !user.id) {
+      api.user
+        .getMe()
+        .then(setUser)
+        .catch(() => undefined);
+    }
+  }, [isAuthenticated, user.id, setUser]);
 
   if (state === "checking") {
     return (

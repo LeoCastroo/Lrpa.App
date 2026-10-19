@@ -2,7 +2,7 @@ import api from "@/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { loginUser } from "@/service/authentication";
+import { loginUser, saveTokens } from "@/service/authentication";
 import { useServicesStore, useUserStore } from "@/store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -40,8 +40,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     try {
       const response = await loginUser(data.email, data.password);
 
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("refresh_token", response.refresh_token);
+      saveTokens(response, { login: true });
 
       const me = await api.user.getMe();
       setUser(me);

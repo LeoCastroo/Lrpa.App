@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Theme, useTheme } from "@/hooks/use-theme";
-import { revokeToken } from "@/service/authentication";
+import { closeSession, revokeToken } from "@/service/authentication";
 import { useServicesStore, useUserStore } from "@/store";
 import { useNavigate } from "react-router-dom";
 
@@ -43,9 +43,10 @@ export function NavUser({
   const { theme, setTheme } = useTheme();
 
   function handleLogout() {
-    revokeToken();
-    localStorage.removeItem("token");
-    localStorage.removeItem("refresh_token");
+    // O refresh token precisa ser lido antes de fechar a sessão (que apaga o armazenamento).
+    const refreshToken = localStorage.getItem("refresh_token");
+    closeSession();
+    void revokeToken(refreshToken);
     clearUser();
     clearServices();
     navigate("/login");
