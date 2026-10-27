@@ -1,5 +1,6 @@
 import {
   Archive,
+  CalendarCheck,
   CalendarClock,
   Database,
   FileDown,
@@ -27,6 +28,7 @@ const iconByKey: Record<string, LucideIcon> = {
   BMG_UPLOAD_DOCUMENTS: FileUp,
   BMG_UPDATES_DEFENSE: Gavel,
   BMG_UPDATES_AUDIENCES: CalendarClock,
+  BMG_UPDATES_DEADLINES: CalendarCheck,
   MERCANTIL_REGISTER_LAW_SUIT: Scale,
   MERCANTIL_UPDATES: Gavel,
   MERCANTIL_UPLOAD_DOCUMENTS: FileUp,
