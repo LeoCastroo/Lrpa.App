@@ -59,6 +59,14 @@ const iconByKey: Record<string, LucideIcon> = {
   LOCALIZA_TASKS_BATCH: ListTodo,
   LOCALIZA_REFUNDS: ReceiptText,
   LOCALIZA_WORKFLOW_ELAW: Workflow,
+  VIVO_UPDATES: ListChecks,
+  VIVO_UPDATES_PA: Gavel,
+  VIVO_UPLOAD_DOCUMENTS: FileUp,
+  VIVO_OBJECT_UPDATER: Workflow,
+  VIVO_PROCESS_CLOSURE: Archive,
+  VIVO_REGISTER_LAW_SUIT: Scale,
+  VIVO_EMAIL_READER: MailCheck,
+  DIRECIONAL_UPLOAD_DOCUMENTS: FileUp,
 };
 
 const iconByCategory: Record<string, LucideIcon> = {
