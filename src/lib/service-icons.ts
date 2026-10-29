@@ -109,6 +109,9 @@ const iconByKey: Record<string, LucideIcon> = {
   TOTVS_EMAIL_READER: MailCheck,
   // Direcional
   DIRECIONAL_UPLOAD_DOCUMENTS: FileUp,
+  // EstrelaBet e Warner (escritório Chenut)
+  ESTRELABET_CASE_UPDATES: ListChecks,
+  WARNER_CASE_UPDATES: ListChecks,
 };
 
 const iconByCategory: Record<string, LucideIcon> = {
