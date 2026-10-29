@@ -71,14 +71,39 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
           <span className="tabular-nums text-success">{formatNumber(row.original.ok)}</span>
         ),
       },
-      {
-        id: "fail",
-        header: "Com falha",
-        enableSorting: false,
-        cell: ({ row }) => (
-          <span className="tabular-nums text-destructive">{formatNumber(row.original.fail)}</span>
-        ),
-      },
+      ...(panel.failureClassification
+        ? ([
+            {
+              id: "failTratativa",
+              header: "Requer Tratativa",
+              enableSorting: false,
+              cell: ({ row }) => (
+                <span className="tabular-nums text-warning">
+                  {formatNumber(row.original.failTratativa ?? 0)}
+                </span>
+              ),
+            },
+            {
+              id: "failAutomacao",
+              header: "Falha da Automação",
+              enableSorting: false,
+              cell: ({ row }) => (
+                <span className="tabular-nums text-destructive">
+                  {formatNumber(row.original.failAutomacao ?? 0)}
+                </span>
+              ),
+            },
+          ] as ColumnDef<IExecution>[])
+        : ([
+            {
+              id: "fail",
+              header: "Com falha",
+              enableSorting: false,
+              cell: ({ row }) => (
+                <span className="tabular-nums text-destructive">{formatNumber(row.original.fail)}</span>
+              ),
+            },
+          ] as ColumnDef<IExecution>[])),
     ];
     if (panel.secondaryFailureLabel) {
       cols.push({

@@ -1,5 +1,18 @@
 import { FailureKind } from "./Service";
 
+/**
+ * Classificação da falha gravada pelo próprio robô: "tratativa" (Requer Tratativa — a regra de
+ * negócio pede ação do escritório), "automacao" (Falha da Automação — bug ou infraestrutura, ação
+ * da LCS) ou "sem_classe" (registro anterior à classificação).
+ */
+export type FailureClassification = "tratativa" | "automacao" | "sem_classe";
+
+export interface IClassCounts {
+  tratativa: number;
+  automacao: number;
+  semClasse: number;
+}
+
 export type ExecutionState = "running" | "success" | "failed" | "interrupted";
 
 export interface IExecution {
@@ -11,6 +24,9 @@ export interface IExecution {
   durationSeconds: number | null;
   ok: number;
   fail: number;
+  /** Só em serviços com classificação de falha. */
+  failTratativa?: number;
+  failAutomacao?: number;
   secondaryFailures: number;
 }
 
@@ -21,6 +37,8 @@ export interface IFailureReasonCount {
   explanation: string;
   action: string;
   count: number;
+  /** Só em serviços com classificação de falha: como as falhas deste motivo se dividem. */
+  classes?: IClassCounts;
 }
 
 export interface IPanelSummary {
@@ -32,10 +50,12 @@ export interface IPanelSummary {
     fail: number;
     successRate: number | null;
     processes: number;
+    /** Só em serviços com classificação de falha (null nos demais). */
+    failClasses: IClassCounts | null;
     secondaryFailures: { label: string; attempts: number; processes: number } | null;
     amount: { label: string; total: number } | null;
   };
-  daily: { day: string; ok: number; fail: number }[];
+  daily: { day: string; ok: number; fail: number; failClasses?: IClassCounts }[];
   failuresByReason: IFailureReasonCount[];
 }
 
@@ -46,6 +66,8 @@ export interface IPanelItem {
   date: string | null;
   executionId: number | null;
   reason: { key: string; title: string; kind: FailureKind | null } | null;
+  /** Só em serviços com classificação de falha; null quando o item deu certo. */
+  classification: FailureClassification | null;
   values: Record<string, unknown>;
 }
 

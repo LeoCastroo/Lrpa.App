@@ -1,9 +1,19 @@
 import { ChevronRight } from "lucide-react";
+import {
+  CLASSIFICATION_BAR,
+  CLASSIFICATION_LABEL,
+  CLASSIFICATION_ORDER,
+  classCount,
+} from "@/lib/failure-classification";
 import { formatNumber } from "@/lib/time";
 import { IFailureReasonCount } from "@/service/types/Panel";
 import { FailureKindBadge } from "./badges";
 
-/** Falhas agrupadas pelo catálogo da documentação; clicar filtra a aba de itens. */
+/**
+ * Falhas agrupadas pelo catálogo da documentação; clicar filtra a aba de itens. Em serviços que
+ * classificam as falhas, a barra de cada motivo mostra como ele se divide entre "Requer
+ * Tratativa" e "Falha da Automação".
+ */
 export function FailureReasons({
   reasons,
   onSelect,
@@ -21,6 +31,11 @@ export function FailureReasons({
     <ul className="flex flex-col divide-y">
       {reasons.map((reason) => {
         const share = Math.round((reason.count / total) * 100);
+        const parts = reason.classes
+          ? CLASSIFICATION_ORDER.map((key) => ({ key, value: classCount(reason.classes!, key) })).filter(
+              (p) => p.value > 0
+            )
+          : [];
         return (
           <li key={reason.key}>
             <button
@@ -37,8 +52,30 @@ export function FailureReasons({
                 <p className="text-xs text-muted-foreground">
                   <span className="font-medium">O que fazer:</span> {reason.action}
                 </p>
+                {parts.length > 0 && (
+                  <p className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                    {parts.map((part) => (
+                      <span key={part.key} className="flex items-center gap-1">
+                        <span className={`size-2 rounded-full ${CLASSIFICATION_BAR[part.key]}`} />
+                        {CLASSIFICATION_LABEL[part.key]}: {formatNumber(part.value)}
+                      </span>
+                    ))}
+                  </p>
+                )}
                 <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                  <div className="h-full bg-destructive/70" style={{ width: `${share}%` }} />
+                  <div className="h-full flex" style={{ width: `${share}%` }}>
+                    {parts.length > 0 ? (
+                      parts.map((part) => (
+                        <div
+                          key={part.key}
+                          className={`h-full ${CLASSIFICATION_BAR[part.key]}`}
+                          style={{ width: `${(part.value / reason.count) * 100}%` }}
+                        />
+                      ))
+                    ) : (
+                      <div className="h-full w-full bg-destructive/70" />
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">

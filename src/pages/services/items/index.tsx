@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/api";
-import { ItemStatusBadge } from "@/components/panel/badges";
+import { FailureClassificationBadge, ItemStatusBadge } from "@/components/panel/badges";
 import { ManualResolutionDialog } from "@/components/panel/manual-resolution-dialog";
 import { PanelFilters } from "@/components/panel/panel-filters";
 import { PeriodSelect } from "@/components/panel/period-select";
@@ -22,8 +22,9 @@ import {
 } from "@/components/ui/select";
 import { usePeriod } from "@/hooks/use-period";
 import { downloadBlob } from "@/lib/download";
+import { CLASSIFICATION_LABEL, CLASSIFICATION_ORDER } from "@/lib/failure-classification";
 import { formatDateTime } from "@/lib/time";
-import { IPaginated, IPanelItem } from "@/service/types/Panel";
+import { FailureClassification, IPaginated, IPanelItem } from "@/service/types/Panel";
 import { IPanelField, IServiceDefinition } from "@/service/types/Service";
 
 const PAGE_SIZE = 25;
@@ -84,6 +85,7 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
 
   const status = params.get("status") ?? ALL;
   const category = params.get("category") ?? ALL;
+  const classification = params.get("classification") ?? ALL;
   const view = params.get("view") === "attempts" ? "attempts" : "current";
   const execution = params.get("execution") ?? undefined;
   const page = Math.max(1, Number(params.get("page")) || 1);
@@ -106,6 +108,7 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
     view,
     status: status !== ALL ? status : undefined,
     category: category !== ALL ? category : undefined,
+    classification: classification !== ALL ? classification : undefined,
     execution,
     sort,
     sortDir,
@@ -240,6 +243,18 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
         enableSorting: false,
         cell: ({ row }) => <ItemStatusBadge success={row.original.success} />,
       },
+      ...(panel.failureClassification
+        ? [
+            {
+              id: "__classification",
+              header: "Classificação",
+              enableSorting: false,
+              cell: ({ row }) => (
+                <FailureClassificationBadge classification={row.original.classification} />
+              ),
+            } as ColumnDef<IPanelItem>,
+          ]
+        : []),
       {
         id: "__reason",
         header: "Motivo",
@@ -306,6 +321,21 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
             <SelectItem value="failure">Falha</SelectItem>
           </SelectContent>
         </Select>
+        {panel.failureClassification && (
+          <Select value={classification} onValueChange={(v) => update({ classification: v })}>
+            <SelectTrigger className="w-full sm:w-52 bg-card">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Todas as classificações</SelectItem>
+              {CLASSIFICATION_ORDER.map((key: FailureClassification) => (
+                <SelectItem key={key} value={key}>
+                  {CLASSIFICATION_LABEL[key]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         <Select value={category} onValueChange={(v) => update({ category: v })}>
           <SelectTrigger className="w-full sm:w-60 bg-card">
             <SelectValue />

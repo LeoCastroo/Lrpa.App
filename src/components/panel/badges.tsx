@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { ExecutionState } from "@/service/types/Panel";
 import { FailureKind } from "@/service/types/Service";
+import { CLASSIFICATION_HINT, CLASSIFICATION_LABEL } from "@/lib/failure-classification";
+import type { FailureClassification } from "@/service/types/Panel";
 
 type BadgeVariant = "info" | "success" | "danger" | "warning";
 
@@ -39,4 +41,24 @@ export function FailureKindBadge({ kind }: { kind: FailureKind | null }) {
 
 export function ItemStatusBadge({ success }: { success: boolean }) {
   return <Badge variant={success ? "success" : "danger"}>{success ? "Sucesso" : "Falha"}</Badge>;
+}
+
+const classificationVariant: Record<FailureClassification, "warning" | "danger" | "outline"> = {
+  tratativa: "warning",
+  automacao: "danger",
+  sem_classe: "outline",
+};
+
+/** Requer Tratativa (âmbar) × Falha da Automação (vermelho) × Sem classificação (contorno). */
+export function FailureClassificationBadge({
+  classification,
+}: {
+  classification: FailureClassification | null;
+}) {
+  if (!classification) return <span className="text-muted-foreground">—</span>;
+  return (
+    <Badge variant={classificationVariant[classification]} title={CLASSIFICATION_HINT[classification]}>
+      {CLASSIFICATION_LABEL[classification]}
+    </Badge>
+  );
 }

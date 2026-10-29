@@ -44,6 +44,8 @@ export interface IPanelMeta {
   manualResolution: { actionLabel: string; warning: string | null } | null;
   /** Quando true, o serviço tem uma aba "Resultados" própria (GET /panel/insights). */
   hasInsights: boolean;
+  /** Quando true, as falhas são separadas em "Requer Tratativa" e "Falha da Automação". */
+  failureClassification: boolean;
 }
 
 export interface ILakeMeta {

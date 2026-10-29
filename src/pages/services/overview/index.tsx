@@ -80,7 +80,16 @@ function Overview({ service, office }: { service: IServiceDefinition; office?: s
               loading && "opacity-50 pointer-events-none"
             )}
           >
-            <KpiCards kpis={summary.kpis} unitPlural={unit.plural} />
+            <KpiCards
+              kpis={summary.kpis}
+              unitPlural={unit.plural}
+              onSelectClass={
+                service.panel!.failureClassification
+                  ? (classification) =>
+                      navigate(link("items", { status: "failure", classification }))
+                  : undefined
+              }
+            />
 
             <div className="grid gap-4 lg:grid-cols-3">
               <LastExecutionCard
