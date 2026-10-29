@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { officeMenuGroup } from "@/lib/office-menu-group";
 import { IServiceDefinition } from "@/service/types/Service";
 import { useUserStore } from "@/store";
 
@@ -18,7 +19,14 @@ export function useOffice(service?: IServiceDefinition): OfficeState {
   const isAdmin = useUserStore((s) => s.user.role) === "ADMIN";
   const [params, setParams] = useSearchParams();
   const officeParam = params.get("office") ?? undefined;
-  const offices = service?.offices ?? [];
+  const allOffices = service?.offices ?? [];
+
+  // O seletor oferece só os escritórios do menu em que o ADMIN está (o menu "Vezzi" nunca oferece
+  // o BLS). Sem escritório na URL, ou com um que o serviço não tem, vale a lista toda.
+  const current = allOffices.find((o) => o.rpa_code === officeParam);
+  const offices = current
+    ? allOffices.filter((o) => officeMenuGroup(o).key === officeMenuGroup(current).key)
+    : allOffices;
 
   useEffect(() => {
     if (isAdmin && !officeParam && offices.length) {

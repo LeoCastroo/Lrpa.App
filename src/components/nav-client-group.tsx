@@ -33,6 +33,16 @@ function writeClosed(keys: string[]) {
   }
 }
 
+export interface NavClientItem {
+  title: string;
+  url: string;
+  icon?: LucideIcon;
+  /** Seção separada por escritório: escritório com que o serviço abre. */
+  office?: string;
+  /** Seção separada por escritório: todos os escritórios da seção (decidem o item ativo). */
+  offices?: string[];
+}
+
 /**
  * Seção de um cliente no menu lateral: o título leva à página do cliente, a seta recolhe a lista
  * de serviços (lembrado entre visitas) e os serviços ficam sob uma linha-guia. Com o menu
@@ -47,13 +57,21 @@ export function NavClientGroup({
   groupKey: string;
   title: string;
   titleUrl: string;
-  items: { title: string; url: string; icon?: LucideIcon }[];
+  items: NavClientItem[];
 }) {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const { state, isMobile } = useSidebar();
   const [closed, setClosed] = useState(() => readClosed().includes(groupKey));
 
-  const activeInside = items.some((i) => pathname === i.url || pathname.startsWith(i.url + "/"));
+  const officeParam = new URLSearchParams(search).get("office");
+  function isItemActive(item: NavClientItem) {
+    const onPath = pathname === item.url || pathname.startsWith(item.url + "/");
+    // O mesmo serviço pode estar em mais de uma seção (um menu por escritório): só a do escritório
+    // aberto fica ativa.
+    return onPath && (!item.offices || (officeParam !== null && item.offices.includes(officeParam)));
+  }
+
+  const activeInside = items.some(isItemActive);
   // Navegar para um serviço de um grupo recolhido reabre o grupo (sem mexer no que foi salvo).
   useEffect(() => {
     if (activeInside) setClosed(false);
@@ -90,12 +108,12 @@ export function NavClientGroup({
         <CollapsibleContent>
           <SidebarMenu className="border-sidebar-border ml-3 w-auto border-l pl-1.5 group-data-[collapsible=icon]:ml-0 group-data-[collapsible=icon]:border-l-0 group-data-[collapsible=icon]:pl-0">
             {items.map((item) => {
-              const isActive = pathname === item.url || pathname.startsWith(item.url + "/");
+              const isActive = isItemActive(item);
               return (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
                     <Link
-                      to={item.url}
+                      to={item.office ? `${item.url}?office=${encodeURIComponent(item.office)}` : item.url}
                       onMouseEnter={(e) => !rail && titleIfTruncated(e.currentTarget, item.title)}
                     >
                       {item.icon && <item.icon />}

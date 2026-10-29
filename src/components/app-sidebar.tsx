@@ -6,7 +6,7 @@ import { NavClientGroup } from "@/components/nav-client-group";
 import { NavMain } from "@/components/nav-main";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { groupServicesByClient } from "@/lib/group-by-client";
+import { groupServicesForMenu, menuGroupUrl, menuServiceOffice } from "@/lib/group-by-client";
 import { serviceIcon } from "@/lib/service-icons";
 import { useServicesStore, useUserStore } from "@/store";
 
@@ -14,7 +14,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useUserStore((s) => s.user);
   const { services, status } = useServicesStore();
 
-  const clientGroups = groupServicesByClient(services);
+  const menuGroups = groupServicesForMenu(services);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -56,17 +56,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </div>
         ) : (
           // Uma seção por cliente final (ex.: BMG) — um novo cliente ganha a própria seção
-          // automaticamente, sem mudança de código.
-          clientGroups.map(({ client, services: clientServices }) => (
+          // automaticamente, sem mudança de código. O ADMIN vê o cliente que mais de um grupo de
+          // escritórios contrata separado por grupo (ex.: BMG · BLS, BMG · Vezzi).
+          menuGroups.map((group) => (
             <NavClientGroup
-              key={client.key}
-              groupKey={client.key}
-              title={client.name}
-              titleUrl={`/clients/${client.key}`}
-              items={clientServices.map((s) => ({
+              key={group.key}
+              groupKey={group.key}
+              title={group.title}
+              titleUrl={menuGroupUrl(group)}
+              items={group.services.map((s) => ({
                 title: s.name,
                 url: `/services/${s.key}`,
                 icon: serviceIcon(s.key),
+                office: menuServiceOffice(s, group),
+                offices: group.officeGroup?.codes,
               }))}
             />
           ))

@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PageHero } from "@/components/ui/page-hero";
 import { Skeleton } from "@/components/ui/skeleton";
-import { groupServicesByClient } from "@/lib/group-by-client";
+import { groupServicesForMenu, menuGroupUrl, menuServiceOffice } from "@/lib/group-by-client";
 import { serviceIcon } from "@/lib/service-icons";
 import { hourInSaoPaulo } from "@/lib/time";
 import { cn } from "@/lib/utils";
@@ -41,29 +41,33 @@ export default function Page() {
   const [query, setQuery] = useState("");
   const [clientFilter, setClientFilter] = useState<string>(ALL);
 
-  const allGroups = useMemo(() => groupServicesByClient(services), [services]);
+  const allGroups = useMemo(() => groupServicesForMenu(services), [services]);
+  const clientCount = useMemo(
+    () => new Set(allGroups.map((group) => group.client.key)).size,
+    [allGroups]
+  );
 
   const visibleGroups = useMemo(() => {
     const term = normalize(query.trim());
     return allGroups
-      .filter(({ client }) => clientFilter === ALL || client.key === clientFilter)
-      .map(({ client, services: clientServices }) => ({
-        client,
+      .filter((group) => clientFilter === ALL || group.key === clientFilter)
+      .map((group) => ({
+        ...group,
         services: term
-          ? clientServices.filter((s) =>
-              normalize(`${s.name} ${s.description ?? ""} ${client.name}`).includes(term)
+          ? group.services.filter((s) =>
+              normalize(`${s.name} ${s.description ?? ""} ${group.title}`).includes(term)
             )
-          : clientServices,
+          : group.services,
       }))
       .filter((group) => group.services.length > 0);
   }, [allGroups, query, clientFilter]);
 
   const chips = [
     { key: ALL, name: "Todos", count: services.length },
-    ...allGroups.map(({ client, services: s }) => ({
-      key: client.key,
-      name: client.name,
-      count: s.length,
+    ...allGroups.map((group) => ({
+      key: group.key,
+      name: group.title,
+      count: group.services.length,
     })),
   ];
 
@@ -112,7 +116,7 @@ export default function Page() {
               <p className="text-sm text-muted-foreground sm:ml-auto">
                 {services.length}{" "}
                 {services.length === 1 ? "serviço disponível" : "serviços disponíveis"}
-                {allGroups.length > 1 && ` em ${allGroups.length} clientes`}
+                {clientCount > 1 && ` em ${clientCount} clientes`}
               </p>
             </div>
           )}
@@ -185,27 +189,32 @@ export default function Page() {
         // Uma seção por cliente final (ex.: BMG) — um novo cliente ganha a própria seção
         // automaticamente, sem mudança de código.
         <div className="flex flex-col gap-8">
-          {visibleGroups.map(({ client, services: clientServices }) => (
-            <section key={client.key} className="flex flex-col gap-3">
+          {visibleGroups.map((group) => (
+            <section key={group.key} className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-semibold text-primary">
-                  {clientInitials(client.name)}
+                  {clientInitials(group.client.name)}
                 </span>
-                <h2 className="text-base font-semibold">{client.name}</h2>
+                <h2 className="text-base font-semibold">{group.title}</h2>
                 <span className="text-sm text-muted-foreground">
-                  {clientServices.length} {clientServices.length === 1 ? "serviço" : "serviços"}
+                  {group.services.length} {group.services.length === 1 ? "serviço" : "serviços"}
                 </span>
                 <span className="ml-1 h-px flex-1 bg-border" />
                 <Link
-                  to={`/clients/${client.key}`}
+                  to={menuGroupUrl(group)}
                   className="inline-flex shrink-0 items-center gap-1 text-sm text-primary hover:underline"
                 >
                   Ver cliente <ArrowRight className="size-3.5" />
                 </Link>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {clientServices.map((s) => (
-                  <ServiceCard key={s.key} service={s} icon={serviceIcon(s.key)} />
+                {group.services.map((s) => (
+                  <ServiceCard
+                    key={s.key}
+                    service={s}
+                    icon={serviceIcon(s.key)}
+                    office={menuServiceOffice(s, group)}
+                  />
                 ))}
               </div>
             </section>

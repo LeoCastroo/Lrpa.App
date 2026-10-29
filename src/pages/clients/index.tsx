@@ -1,12 +1,13 @@
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import api from "@/api";
 import { ServiceCard } from "@/components/home/service-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHero } from "@/components/ui/page-hero";
 import { Skeleton } from "@/components/ui/skeleton";
+import { groupServicesForMenu, menuGroupUrl, menuServiceOffice } from "@/lib/group-by-client";
 import { categoryIcon, serviceIcon } from "@/lib/service-icons";
 import { formatNumber } from "@/lib/time";
 import { IClientResults } from "@/service/types/Client";
@@ -37,6 +38,24 @@ function groupByCategory(services: IServiceDefinition[]): CategoryGroup[] {
   return [...groups.values()].sort((a, b) => a.category.order - b.category.order);
 }
 
+// Seção com mais de um escritório (ex.: Vezzi): a API devolve um escritório por vez, então os
+// números do grupo são a soma das respostas.
+function mergeResults(list: IClientResults[]): IClientResults {
+  const sum = (maps: Record<string, number>[]) => {
+    const out: Record<string, number> = {};
+    for (const map of maps) {
+      for (const [key, value] of Object.entries(map)) out[key] = (out[key] ?? 0) + value;
+    }
+    return out;
+  };
+  return {
+    windowDays: list.find((r) => r.windowDays !== null)?.windowDays ?? null,
+    services: sum(list.map((r) => r.services)),
+    categories: sum(list.map((r) => r.categories)),
+    total: list.reduce((acc, r) => acc + r.total, 0),
+  };
+}
+
 function categoryTotal(results: IClientResults | null, categoryKey: string): number {
   return results?.categories[categoryKey] ?? 0;
 }
@@ -56,32 +75,46 @@ function serviceHighlight(
 
 export default function Page() {
   const { clientKey } = useParams();
+  const [searchParams] = useSearchParams();
+  const menuParam = searchParams.get("menu");
   const { services, status } = useServicesStore();
 
   // Só entram os serviços que o usuário já pode ver — um cliente sem nenhum serviço permitido é
   // indistinguível de um cliente que não existe (mesma resposta, nada a confirmar).
-  const clientServices = useMemo(
-    () => services.filter((s) => s.client.key === clientKey),
+  // O ADMIN vê o cliente que mais de um grupo de escritórios contrata separado por grupo
+  // (?menu=), igual ao menu lateral: cada página só mostra o que aquele grupo contratou.
+  const menuGroups = useMemo(
+    () => groupServicesForMenu(services).filter((g) => g.client.key === clientKey),
     [services, clientKey]
   );
+  const separated = menuGroups.some((g) => g.officeGroup);
+  const menuGroup = separated
+    ? menuGroups.find((g) => g.officeGroup?.key === menuParam)
+    : menuGroups[0];
+  const clientServices = useMemo(() => menuGroup?.services ?? [], [menuGroup]);
   const groups = useMemo(() => groupByCategory(clientServices), [clientServices]);
-  const client = clientServices[0]?.client;
+  const client = menuGroups[0]?.client;
+  const officeCodes = menuGroup?.officeGroup?.codes;
+  const officeCodesKey = officeCodes?.join(",") ?? "";
 
   const [results, setResults] = useState<IClientResults | null>(null);
 
   // Os números são um complemento: se a consulta falhar, a página continua igual, só sem eles.
+  // Espera a seção ser resolvida: sem ela, o ADMIN receberia os números de todos os escritórios.
   useEffect(() => {
-    if (!clientKey) return;
+    if (!clientKey || !menuGroup) return;
     let cancelled = false;
     setResults(null);
-    api.clients
-      .getResults(clientKey)
-      .then((data) => !cancelled && setResults(data))
+    const requests = officeCodes?.length
+      ? officeCodes.map((code) => api.clients.getResults(clientKey, code))
+      : [api.clients.getResults(clientKey)];
+    Promise.all(requests)
+      .then((list) => !cancelled && setResults(mergeResults(list)))
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, [clientKey]);
+  }, [clientKey, officeCodesKey, Boolean(menuGroup)]);
 
   const windowLabel = results?.windowDays ? `nos últimos ${results.windowDays} dias` : "no período";
 
@@ -113,6 +146,10 @@ export default function Page() {
     );
   }
 
+  // Cliente separado por escritório sem (ou com) um grupo que não existe: vai para o primeiro,
+  // nunca para uma visão que mistura escritórios.
+  if (!menuGroup) return <Navigate to={menuGroupUrl(menuGroups[0])} replace />;
+
   return (
     <div className="container mx-auto py-2 flex flex-col gap-6">
       <Link
@@ -128,7 +165,7 @@ export default function Page() {
             {clientInitials(client.name)}
           </span>
           <div className="min-w-0">
-            <h1 className="text-2xl font-semibold tracking-tight">{client.name}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">{menuGroup.title}</h1>
             <p className="text-sm text-muted-foreground">
               {clientServices.length} {clientServices.length === 1 ? "serviço" : "serviços"} em{" "}
               {groups.length} {groups.length === 1 ? "área" : "áreas"} de atuação
@@ -169,6 +206,7 @@ export default function Page() {
                     service={s}
                     icon={serviceIcon(s.key)}
                     highlight={serviceHighlight(s, results, windowLabel)}
+                    office={menuServiceOffice(s, menuGroup)}
                   />
                 ))}
               </div>

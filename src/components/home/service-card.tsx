@@ -17,9 +17,12 @@ export function ServiceCard({
   service,
   icon: Icon,
   highlight,
+  office,
 }: {
   service: IServiceDefinition;
   icon: LucideIcon;
+  /** ADMIN em seção separada por escritório: abre o serviço já nesse escritório. */
+  office?: string;
   /** Frase curta de resultado (ex.: "1.118 andamentos nos últimos 30 dias"). Omitida quando não há volume. */
   highlight?: string;
 }) {
@@ -27,7 +30,7 @@ export function ServiceCard({
 
   return (
     <Link
-      to={`/services/${service.key}`}
+      to={`/services/${service.key}${office ? `?office=${encodeURIComponent(office)}` : ""}`}
       className="group flex min-w-0 flex-col gap-4 rounded-lg border bg-card p-5 text-card-foreground outline-none transition-colors hover:border-primary/60 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
     >
       <div className="flex items-start gap-3">
