@@ -8,6 +8,7 @@ import api from "@/api";
 import { PasswordInput } from "@/components/password-input";
 import { CredentialEditWarningDialog } from "@/components/credentials/credential-edit-warning-dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -46,6 +47,8 @@ function makeSchema(mode: "create" | "edit") {
 }
 type CredentialFormData = z.infer<ReturnType<typeof makeSchema>>;
 
+const SHARED_KEY = "GLOBAL";
+
 interface CredentialDialogProps {
   mode: "create" | "edit";
   availableClients: { key: string; name: string }[];
@@ -62,6 +65,8 @@ export function CredentialDialog({
   const [open, setOpen] = useState(false);
   const [clientKey, setClientKey] = useState(credential?.client_key ?? "");
   const [clientKeyError, setClientKeyError] = useState<string | null>(null);
+  const [usedBy, setUsedBy] = useState<string[]>(credential?.used_by.map((c) => c.key) ?? []);
+  const [usedByError, setUsedByError] = useState<string | null>(null);
   const [warningOpen, setWarningOpen] = useState(false);
   const [pendingData, setPendingData] = useState<CredentialFormData | null>(null);
 
@@ -90,7 +95,18 @@ export function CredentialDialog({
     });
     setClientKey(credential?.client_key ?? "");
     setClientKeyError(null);
+    setUsedBy(credential?.used_by.map((c) => c.key) ?? []);
+    setUsedByError(null);
     setPendingData(null);
+  }
+
+  const isShared = mode === "create" ? clientKey === SHARED_KEY : credential?.kind === "SHARED";
+  // Clientes que podem usar uma credencial compartilhada (a opção "compartilhada" em si não conta).
+  const sharedChoices = availableClients.filter((c) => c.key !== SHARED_KEY);
+
+  function toggleUsedBy(key: string, checked: boolean) {
+    setUsedBy((current) => (checked ? [...current, key] : current.filter((k) => k !== key)));
+    setUsedByError(null);
   }
 
   async function save(data: CredentialFormData, acknowledged: boolean) {
@@ -101,6 +117,7 @@ export function CredentialDialog({
         username: data.username,
         password: data.password,
         notes: data.notes || undefined,
+        used_by: isShared ? usedBy : undefined,
       });
       toast.success("Credencial criada.");
     } else {
@@ -109,6 +126,7 @@ export function CredentialDialog({
         username: data.username,
         password: data.password.trim() ? data.password : undefined,
         notes: data.notes ?? "",
+        used_by: isShared ? usedBy : undefined,
         acknowledged: acknowledged || undefined,
       });
       toast.success("Credencial atualizada.");
@@ -123,6 +141,11 @@ export function CredentialDialog({
       return;
     }
     setClientKeyError(null);
+    if (isShared && usedBy.length === 0) {
+      setUsedByError("Marque os clientes que usam este login.");
+      return;
+    }
+    setUsedByError(null);
 
     const touchesSensitive =
       mode === "edit" &&
@@ -200,7 +223,31 @@ export function CredentialDialog({
                   <Input value={credential?.clientName ?? ""} disabled />
                 )}
                 {clientKeyError && <p className="text-sm text-destructive">{clientKeyError}</p>}
+                {mode === "create" && (
+                  <p className="text-xs text-muted-foreground">
+                    {isShared
+                      ? "Um único login usado por vários clientes (ex.: ElawIO). Só administradores o veem."
+                      : "Login só deste cliente. Se o mesmo login atende vários clientes, escolha \"Compartilhada\"."}
+                  </p>
+                )}
               </Field>
+              {isShared && (
+                <Field>
+                  <FieldLabel>Clientes que usam este login</FieldLabel>
+                  <div className="grid gap-2 rounded-md border p-3 sm:grid-cols-2 max-h-48 overflow-y-auto">
+                    {sharedChoices.map((c) => (
+                      <label key={c.key} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={usedBy.includes(c.key)}
+                          onCheckedChange={(value) => toggleUsedBy(c.key, !!value)}
+                        />
+                        {c.name}
+                      </label>
+                    ))}
+                  </div>
+                  {usedByError && <p className="text-sm text-destructive">{usedByError}</p>}
+                </Field>
+              )}
               <Field>
                 <FieldLabel htmlFor="credential-system">Sistema</FieldLabel>
                 <Input

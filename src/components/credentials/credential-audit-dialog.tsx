@@ -20,6 +20,7 @@ const FIELD_LABELS: Record<string, string> = {
   password: "senha",
   status: "status",
   notes: "observações",
+  used_by: "clientes que usam o login",
 };
 
 function describeFields(fields: string[]) {
@@ -27,9 +28,16 @@ function describeFields(fields: string[]) {
   return ` (${fields.map((f) => FIELD_LABELS[f] ?? f).join(", ")})`;
 }
 
-function formatAuditSentence(entry: ICredentialAuditEntry, clientName: string, system: string) {
+function formatAuditSentence(
+  entry: ICredentialAuditEntry,
+  clientName: string,
+  system: string,
+  shared: boolean
+) {
   const when = formatDateTime(entry.created_at as unknown as string);
-  const base = `do sistema ${system} do cliente ${clientName} em ${when}`;
+  const base = shared
+    ? `compartilhada do sistema ${system} em ${when}`
+    : `do sistema ${system} do cliente ${clientName} em ${when}`;
 
   if (entry.action === "CREATE") {
     return `${entry.actor.name} criou a credencial ${base}.`;
@@ -51,6 +59,7 @@ interface CredentialAuditDialogProps {
   onOpenChange: (open: boolean) => void;
   credentialId: string;
   clientName: string;
+  shared?: boolean;
   system: string;
 }
 
@@ -59,6 +68,7 @@ export function CredentialAuditDialog({
   onOpenChange,
   credentialId,
   clientName,
+  shared = false,
   system,
 }: CredentialAuditDialogProps) {
   const [entries, setEntries] = useState<ICredentialAuditEntry[] | null>(null);
@@ -81,7 +91,7 @@ export function CredentialAuditDialog({
         <DialogHeader>
           <DialogTitle>Histórico da credencial</DialogTitle>
           <DialogDescription>
-            {system} — {clientName}
+            {system} — {shared ? "Compartilhada (vários clientes)" : clientName}
           </DialogDescription>
         </DialogHeader>
 
@@ -99,7 +109,7 @@ export function CredentialAuditDialog({
           ) : (
             entries.map((entry) => (
               <p key={entry.id} className="text-sm border-b pb-2 last:border-b-0">
-                {formatAuditSentence(entry, clientName, system)}
+                {formatAuditSentence(entry, clientName, system, shared)}
               </p>
             ))
           )}

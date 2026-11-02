@@ -2,6 +2,10 @@ export interface ICredentialSummary {
   id: string;
   client_key: string;
   clientName: string;
+  /** Dedicada (login de um cliente) ou compartilhada (um login usado por vários clientes). */
+  kind: "DEDICATED" | "SHARED";
+  /** Compartilhada: os clientes que usam o login. Vazio nas dedicadas. */
+  used_by: { key: string; name: string }[];
   system: string;
   username: string;
   status: "ACTIVE" | "INACTIVE";
@@ -25,6 +29,8 @@ export interface ICreateCredentialInput {
   username: string;
   password: string;
   notes?: string;
+  /** Só na compartilhada (client_key "GLOBAL"): chaves dos clientes que usam o login. */
+  used_by?: string[];
 }
 
 export interface IUpdateCredentialInput {
@@ -34,6 +40,8 @@ export interface IUpdateCredentialInput {
   password?: string;
   status?: "ACTIVE" | "INACTIVE";
   notes?: string;
+  /** Só na compartilhada: substitui a lista de clientes que usam o login. */
+  used_by?: string[];
   acknowledged?: boolean;
 }
 

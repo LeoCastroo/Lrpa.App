@@ -74,7 +74,28 @@ export default function Page() {
         id: "clientName",
         header: "Cliente",
         enableSorting: false,
-        cell: ({ row }) => row.original.clientName,
+        cell: ({ row }) =>
+          row.original.kind === "SHARED" ? (
+            <div className="flex flex-col">
+              <span>Vários clientes</span>
+              <span className="text-xs text-muted-foreground">
+                {row.original.used_by.map((c) => c.name).join(", ")}
+              </span>
+            </div>
+          ) : (
+            row.original.clientName
+          ),
+      },
+      {
+        id: "kind",
+        header: "Tipo",
+        enableSorting: false,
+        cell: ({ row }) =>
+          row.original.kind === "SHARED" ? (
+            <Badge variant="info">Compartilhada</Badge>
+          ) : (
+            <Badge variant="outline">Dedicada</Badge>
+          ),
       },
       {
         id: "system",
@@ -157,7 +178,7 @@ export default function Page() {
     <div className="container mx-auto py-2 flex flex-col gap-4">
       <PageHeader
         title="Cofre de Credenciais"
-        description="Credenciais usadas pelos robôs para logar nos sistemas externos dos clientes. Alterações aqui não atualizam nenhum robô automaticamente."
+        description="Credenciais usadas pelos robôs para logar nos sistemas externos dos clientes. Dedicada é o login de um cliente; compartilhada é um mesmo login usado por vários clientes (ex.: ElawIO). Alterações aqui não atualizam nenhum robô automaticamente."
       >
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <Select value={clientKey} onValueChange={(v) => update({ client: v })}>
@@ -211,6 +232,7 @@ export default function Page() {
           onOpenChange={(open) => !open && setAuditTarget(null)}
           credentialId={auditTarget.id}
           clientName={auditTarget.clientName}
+          shared={auditTarget.kind === "SHARED"}
           system={auditTarget.system}
         />
       )}
