@@ -15,6 +15,7 @@ import ImportNew from "./pages/services/imports/new";
 import ImportDetails from "./pages/services/imports/details";
 import Users from "./pages/users";
 import Credentials from "./pages/credentials";
+import Feedback from "./pages/feedback";
 import ClientHome from "./pages/clients";
 import ServiceJurimetria from "./pages/services/jurimetria";
 import ServiceProcessos from "./pages/services/processos";
@@ -55,6 +56,11 @@ const routes = {
       path: "/credentials",
       Page: Credentials,
       title: "Cofre de Credenciais",
+    },
+    {
+      path: "/feedback",
+      Page: Feedback,
+      title: "Sugestões e bugs",
     },
     {
       path: "/clients/:clientKey",

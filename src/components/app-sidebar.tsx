@@ -1,4 +1,4 @@
-import { KeyRound, LayoutDashboard, ListTodo, Users } from "lucide-react";
+import { KeyRound, LayoutDashboard, ListTodo, MessageSquareText, Users } from "lucide-react";
 import * as React from "react";
 
 import { BrandLogo } from "@/components/brand-logo";
@@ -41,6 +41,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               ? [
                   { title: "Central de Pendências", url: "/pendencies", icon: ListTodo },
                   { title: "Usuários", url: "/users", icon: Users },
+                  { title: "Sugestões e bugs", url: "/feedback", icon: MessageSquareText },
                 ]
               : []),
             ...(user.role === "ADMIN" || user.hasVaultAccess

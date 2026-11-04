@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
 import { NavUser } from "@/components/nav-user";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -129,6 +130,7 @@ export default function PrivateLayout({
             )}
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            <FeedbackDialog />
             <NavUser user={{ avatar: "", email: user.email, name: user.name }} />
           </div>
         </header>
