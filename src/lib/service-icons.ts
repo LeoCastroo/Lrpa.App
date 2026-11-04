@@ -29,6 +29,7 @@ import {
   ScrollText,
   ShieldCheck,
   Siren,
+  Sparkles,
   Tags,
   Wallet,
   Workflow,
@@ -61,6 +62,7 @@ const iconByKey: Record<string, LucideIcon> = {
   BMG_WORKFLOWS_NOTICE_FOR_TREATMENT: BellRing,
   BMG_WORKFLOWS_NOTICE_OF_REPRESENTATION: Handshake,
   BMG_WORKFLOWS_SUBSIDIES: PackageCheck,
+  BMG_GENAI_DEFENSE: Sparkles,
   // CITE-SE
   BMG_CITE_SE_PRAZOS: CalendarClock,
   BMG_CITE_SE_COPIA_INTEGRAL: FileDown,
