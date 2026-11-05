@@ -97,7 +97,11 @@ function ImportList({ service, office }: { service: IServiceDefinition; office?:
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <p className="text-sm text-muted-foreground">Importações enviadas por este escritório.</p>
         <div className="flex flex-wrap items-center gap-2">
-          <RunConsolidationButton onDone={() => setReloadKey((k) => k + 1)} />
+          <RunConsolidationButton
+            serviceKey={serviceKey}
+            office={office}
+            onDone={() => setReloadKey((k) => k + 1)}
+          />
           <Button
             onClick={() =>
               navigate(`/services/${serviceKey}/imports/new${office ? `?office=${office}` : ""}`)
