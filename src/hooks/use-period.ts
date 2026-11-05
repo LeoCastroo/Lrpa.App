@@ -19,7 +19,12 @@ const DEFAULT_PRESET = PERIOD_PRESETS[1];
 export function usePeriod(options?: { allowed?: readonly PeriodPreset[]; defaultValue?: PeriodPreset }) {
   const [params, setParams] = useSearchParams();
   const candidates = PERIOD_PRESETS.filter((p) => !options?.allowed || options.allowed.includes(p.value));
-  const fallback = candidates.find((p) => p.value === options?.defaultValue) ?? candidates[0] ?? DEFAULT_PRESET;
+  // Padrão: o que a tela pediu; senão 7 dias (o padrão dos painéis), se for um período oferecido.
+  const fallback =
+    candidates.find((p) => p.value === options?.defaultValue) ??
+    candidates.find((p) => p.value === DEFAULT_PRESET.value) ??
+    candidates[0] ??
+    DEFAULT_PRESET;
   const preset = candidates.find((p) => p.value === params.get("period")) ?? fallback;
 
   function setPreset(value: PeriodPreset) {
