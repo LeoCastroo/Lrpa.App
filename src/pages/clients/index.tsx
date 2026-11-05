@@ -74,6 +74,7 @@ function mergeEffort(list: IClientResults[]): IClientResults["effort"] {
     workdays: parts.reduce((acc, e) => acc + e.workdays, 0),
     services: sum(parts.map((e) => e.services)),
     categories: sum(parts.map((e) => e.categories)),
+    minutesPerItem: Object.assign({}, ...parts.map((e) => e.minutesPerItem)),
   };
 }
 
@@ -200,6 +201,11 @@ export default function Page() {
               {groups.length} {groups.length === 1 ? "área" : "áreas"} de atuação
             </p>
           </div>
+          {results?.windowDays ? (
+            <span className="ml-auto hidden shrink-0 rounded-full border bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground sm:inline-block">
+              Últimos {results.windowDays} dias
+            </span>
+          ) : null}
         </div>
       </PageHero>
 

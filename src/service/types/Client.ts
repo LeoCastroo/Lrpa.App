@@ -12,5 +12,7 @@ export interface IClientResults {
     workdays: number;
     services: Record<string, number>;
     categories: Record<string, number>;
+    /** Minutos de trabalho manual por item usados na conta, por serviço. */
+    minutesPerItem: Record<string, number>;
   } | null;
 }
