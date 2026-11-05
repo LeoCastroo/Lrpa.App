@@ -7,14 +7,25 @@ import { ClientKpis } from "@/components/clients/client-kpis";
 import { ServiceCard } from "@/components/home/service-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PeriodSelect } from "@/components/panel/period-select";
 import { PageHero } from "@/components/ui/page-hero";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePeriod, PeriodPreset } from "@/hooks/use-period";
 import { groupServicesForMenu, menuGroupUrl, menuServiceOffice } from "@/lib/group-by-client";
 import { categoryIcon, serviceIcon } from "@/lib/service-icons";
 import { formatNumber } from "@/lib/time";
 import { IClientResults } from "@/service/types/Client";
 import { IServiceCategory, IServiceDefinition } from "@/service/types/Service";
 import { useServicesStore } from "@/store";
+
+// A página do cliente mostra números fechados por dia (o de hoje ainda está incompleto), então
+// não oferece "Hoje".
+const CLIENT_PERIODS: readonly PeriodPreset[] = ["7d", "30d", "90d"];
+
+function formatDayMonth(isoDay: string): string {
+  const [, month, day] = isoDay.split("-");
+  return `${day}/${month}`;
+}
 
 function clientInitials(name: string) {
   return name
@@ -52,10 +63,31 @@ function mergeResults(list: IClientResults[]): IClientResults {
   };
   return {
     windowDays: list.find((r) => r.windowDays !== null)?.windowDays ?? null,
+    until: list.map((r) => r.until).filter((d): d is string => d !== null).sort().pop() ?? null,
     services: sum(list.map((r) => r.services)),
     categories: sum(list.map((r) => r.categories)),
     total: list.reduce((acc, r) => acc + r.total, 0),
     effort: mergeEffort(list),
+    timeline: mergeTimeline(list),
+  };
+}
+
+function mergeTimeline(list: IClientResults[]): IClientResults["timeline"] {
+  const parts = list.map((r) => r.timeline).filter((t): t is NonNullable<typeof t> => t !== null);
+  if (parts.length === 0) return null;
+  const buckets = parts[0].buckets.map((bucket, i) => ({
+    start: bucket.start,
+    hours: parts.reduce((acc, t) => acc + (t.buckets[i]?.hours ?? 0), 0),
+    previousHours: parts.reduce((acc, t) => acc + (t.buckets[i]?.previousHours ?? 0), 0),
+  }));
+  const currentHours = buckets.reduce((acc, bucket) => acc + bucket.hours, 0);
+  const previousHours = buckets.reduce((acc, bucket) => acc + bucket.previousHours, 0);
+  return {
+    bucketDays: parts[0].bucketDays,
+    buckets,
+    currentHours,
+    previousHours,
+    trendPct: previousHours > 0 ? Math.round(((currentHours - previousHours) / previousHours) * 100) : null,
   };
 }
 
@@ -127,24 +159,33 @@ export default function Page() {
   const officeCodes = menuGroup?.officeGroup?.codes;
   const officeCodesKey = officeCodes?.join(",") ?? "";
 
+  const period = usePeriod({ allowed: CLIENT_PERIODS, defaultValue: "30d" });
   const [results, setResults] = useState<IClientResults | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Trocar de cliente/escritório zera os números; trocar só o período mantém os anteriores na tela
+  // (esmaecidos) até os novos chegarem, sem piscar.
+  useEffect(() => {
+    setResults(null);
+  }, [clientKey, officeCodesKey]);
 
   // Os números são um complemento: se a consulta falhar, a página continua igual, só sem eles.
   // Espera a seção ser resolvida: sem ela, o ADMIN receberia os números de todos os escritórios.
   useEffect(() => {
     if (!clientKey || !menuGroup) return;
     let cancelled = false;
-    setResults(null);
+    setLoading(true);
     const requests = officeCodes?.length
-      ? officeCodes.map((code) => api.clients.getResults(clientKey, code))
-      : [api.clients.getResults(clientKey)];
+      ? officeCodes.map((code) => api.clients.getResults(clientKey, code, period.days))
+      : [api.clients.getResults(clientKey, undefined, period.days)];
     Promise.all(requests)
       .then((list) => !cancelled && setResults(mergeResults(list)))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
     };
-  }, [clientKey, officeCodesKey, Boolean(menuGroup)]);
+  }, [clientKey, officeCodesKey, Boolean(menuGroup), period.days]);
 
   const windowLabel = results?.windowDays ? `nos últimos ${results.windowDays} dias` : "no período";
 
@@ -201,17 +242,26 @@ export default function Page() {
               {groups.length} {groups.length === 1 ? "área" : "áreas"} de atuação
             </p>
           </div>
-          {results?.windowDays ? (
-            <span className="ml-auto hidden shrink-0 rounded-full border bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground sm:inline-block">
-              Últimos {results.windowDays} dias
-            </span>
-          ) : null}
+          <div className="ml-auto flex shrink-0 flex-col items-end gap-1">
+            <PeriodSelect
+              value={period.preset}
+              onChange={period.setPreset}
+              allowed={CLIENT_PERIODS}
+              disabled={loading}
+              className="w-44"
+            />
+            {results?.until ? (
+              <span className="text-xs text-muted-foreground">Dados até {formatDayMonth(results.until)}</span>
+            ) : null}
+          </div>
         </div>
       </PageHero>
 
-      {results && <ClientKpis results={results} windowLabel={windowLabel} />}
       {results && (
-        <ClientCharts results={results} categoryNames={categoryNames} serviceNames={serviceNames} />
+        <div className={loading ? "flex flex-col gap-6 opacity-60 transition-opacity" : "flex flex-col gap-6"}>
+          <ClientKpis results={results} windowLabel={windowLabel} />
+          <ClientCharts results={results} categoryNames={categoryNames} serviceNames={serviceNames} />
+        </div>
       )}
 
       <div className="flex flex-col gap-8">

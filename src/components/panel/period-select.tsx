@@ -13,11 +13,14 @@ export function PeriodSelect({
   onChange,
   disabled,
   className,
+  allowed,
 }: {
   value: PeriodPreset;
   onChange: (value: PeriodPreset) => void;
   disabled?: boolean;
   className?: string;
+  /** Restringe os períodos oferecidos (padrão: todos). */
+  allowed?: readonly PeriodPreset[];
 }) {
   return (
     <Select value={value} onValueChange={(v) => onChange(v as PeriodPreset)} disabled={disabled}>
@@ -25,7 +28,7 @@ export function PeriodSelect({
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {PERIOD_PRESETS.map((p) => (
+        {PERIOD_PRESETS.filter((p) => !allowed || allowed.includes(p.value)).map((p) => (
           <SelectItem key={p.value} value={p.value}>
             {p.label}
           </SelectItem>

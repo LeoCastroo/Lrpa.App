@@ -15,7 +15,7 @@ function Stat({
   icon: ReactNode;
   label: string;
   value: string;
-  hint: string;
+  hint: ReactNode;
   tone: "success" | "primary";
 }) {
   return (
@@ -70,7 +70,14 @@ export function ClientKpis({ results, windowLabel }: { results: IClientResults; 
             icon={<Clock />}
             label="Horas devolvidas à equipe"
             value={`≈ ${formatNumber(Math.round(effort.hours))} h`}
-            hint="estimativa pelo tempo médio da tarefa manual"
+            hint={
+              <>
+                {results.timeline?.trendPct != null && results.timeline.trendPct > 0 && (
+                  <span className="font-medium text-success">+{results.timeline.trendPct}% sobre o período anterior · </span>
+                )}
+                estimativa pelo tempo médio da tarefa manual
+              </>
+            }
           />
           <Stat
             tone="primary"
