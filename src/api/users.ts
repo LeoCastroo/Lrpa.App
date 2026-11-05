@@ -14,6 +14,12 @@ async function createUser(
   return data;
 }
 
+/** Edita o nome do usuário (e-mail e acessos não mudam por aqui). */
+async function updateUser(id: string, input: { name: string }): Promise<{ id: string; name: string }> {
+  const { data } = await api.put(`/users/${id}`, input);
+  return data;
+}
+
 async function setUserServices(id: string, serviceKeys: string[]): Promise<void> {
   await api.put(`/users/${id}/services`, { serviceKeys });
 }
@@ -30,4 +36,4 @@ async function setVaultAccess(
   await api.put(`/users/${id}/vault-access`, input);
 }
 
-export default { listUsers, createUser, setUserServices, getVaultAccess, setVaultAccess };
+export default { listUsers, createUser, updateUser, setUserServices, getVaultAccess, setVaultAccess };

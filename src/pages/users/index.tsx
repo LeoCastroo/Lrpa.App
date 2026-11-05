@@ -237,6 +237,7 @@ function EditServicesDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set(user.serviceKeys));
+  const [name, setName] = useState(user.name);
   const [saving, setSaving] = useState(false);
 
   const toggle = (key: string) =>
@@ -246,15 +247,28 @@ function EditServicesDialog({
       return next;
     });
 
+  const trimmedName = name.trim();
+  const nameChanged = trimmedName !== user.name;
+  const servicesChanged =
+    selected.size !== user.serviceKeys.length || user.serviceKeys.some((key) => !selected.has(key));
+  const nameInvalid = trimmedName.length === 0 || trimmedName.length > 250;
+
   const onSave = async () => {
     setSaving(true);
+    let nameSaved = false;
     try {
-      await api.users.setUserServices(user.id, Array.from(selected));
-      toast.success("Serviços atualizados.");
+      if (nameChanged) {
+        await api.users.updateUser(user.id, { name: trimmedName });
+        nameSaved = true;
+      }
+      if (servicesChanged) await api.users.setUserServices(user.id, Array.from(selected));
+      toast.success("Usuário atualizado.");
       setOpen(false);
       onSaved();
     } catch (error) {
-      toast.error(apiErrorMessage(error, "Não foi possível salvar os serviços."));
+      toast.error(apiErrorMessage(error, "Não foi possível salvar as alterações."));
+      // O nome já foi gravado antes do erro nos serviços: recarrega a lista para refletir isso.
+      if (nameSaved) onSaved();
     } finally {
       setSaving(false);
     }
@@ -265,24 +279,40 @@ function EditServicesDialog({
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (next) setSelected(new Set(user.serviceKeys));
+        if (next) {
+          setSelected(new Set(user.serviceKeys));
+          setName(user.name);
+        }
       }}
     >
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          Editar serviços
+          Editar
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{user.name}</DialogTitle>
+          <DialogTitle>Editar usuário</DialogTitle>
           <DialogDescription>{user.email}</DialogDescription>
         </DialogHeader>
-        <div className="py-4">
-          <ServiceChecklist services={officeServices} selected={selected} onToggle={toggle} />
+        <div className="flex flex-col gap-4 py-4">
+          <Field>
+            <FieldLabel htmlFor={`edit-user-name-${user.id}`}>Nome</FieldLabel>
+            <Input
+              id={`edit-user-name-${user.id}`}
+              value={name}
+              maxLength={250}
+              onChange={(event) => setName(event.target.value)}
+            />
+            {nameInvalid && <p className="text-sm text-destructive">Informe o nome.</p>}
+          </Field>
+          <Field>
+            <FieldLabel>Serviços</FieldLabel>
+            <ServiceChecklist services={officeServices} selected={selected} onToggle={toggle} />
+          </Field>
         </div>
         <DialogFooter>
-          <Button onClick={onSave} disabled={saving}>
+          <Button onClick={onSave} disabled={saving || nameInvalid || (!nameChanged && !servicesChanged)}>
             {saving && <Loader2 className="mr-2 size-4 animate-spin" />}
             {saving ? "Salvando..." : "Salvar"}
           </Button>
