@@ -1,7 +1,8 @@
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import api from "@/api";
+import { ClientKpis } from "@/components/clients/client-kpis";
 import { ServiceCard } from "@/components/home/service-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -53,6 +54,25 @@ function mergeResults(list: IClientResults[]): IClientResults {
     services: sum(list.map((r) => r.services)),
     categories: sum(list.map((r) => r.categories)),
     total: list.reduce((acc, r) => acc + r.total, 0),
+    effort: mergeEffort(list),
+  };
+}
+
+function mergeEffort(list: IClientResults[]): IClientResults["effort"] {
+  const parts = list.map((r) => r.effort).filter((e): e is NonNullable<typeof e> => e !== null);
+  if (parts.length === 0) return null;
+  const sum = (maps: Record<string, number>[]) => {
+    const out: Record<string, number> = {};
+    for (const map of maps) {
+      for (const [key, value] of Object.entries(map)) out[key] = (out[key] ?? 0) + value;
+    }
+    return out;
+  };
+  return {
+    hours: parts.reduce((acc, e) => acc + e.hours, 0),
+    workdays: parts.reduce((acc, e) => acc + e.workdays, 0),
+    services: sum(parts.map((e) => e.services)),
+    categories: sum(parts.map((e) => e.categories)),
   };
 }
 
@@ -170,15 +190,11 @@ export default function Page() {
               {clientServices.length} {clientServices.length === 1 ? "serviço" : "serviços"} em{" "}
               {groups.length} {groups.length === 1 ? "área" : "áreas"} de atuação
             </p>
-            {results && results.total > 0 && (
-              <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-success">
-                <CheckCircle2 className="size-4 shrink-0" />
-                {formatNumber(results.total)} itens processados com sucesso {windowLabel}
-              </p>
-            )}
           </div>
         </div>
       </PageHero>
+
+      {results && <ClientKpis results={results} windowLabel={windowLabel} />}
 
       <div className="flex flex-col gap-8">
         {groups.map(({ category, services: categoryServices }) => {
@@ -196,6 +212,9 @@ export default function Page() {
                 {categoryTotal(results, category.key) > 0 && (
                   <span className="shrink-0 rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-medium tabular-nums text-success">
                     {formatNumber(categoryTotal(results, category.key))} itens
+                    {results?.effort?.categories[category.key]
+                      ? ` · ≈ ${formatNumber(Math.round(results.effort.categories[category.key]))} h`
+                      : ""}
                   </span>
                 )}
               </div>
