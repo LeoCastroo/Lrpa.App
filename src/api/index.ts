@@ -8,6 +8,7 @@ import { default as lake } from "./lake";
 import { default as credentials } from "./credentials";
 import { default as clients } from "./clients";
 import { default as feedback } from "./feedback";
+import { default as consolidation } from "./consolidation";
 
 export interface Pagination {
   page: number;
@@ -27,4 +28,5 @@ export default {
   credentials,
   clients,
   feedback,
+  consolidation,
 };

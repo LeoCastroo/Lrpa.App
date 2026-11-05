@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/api";
+import { RunConsolidationButton } from "@/components/imports/run-consolidation-button";
 import { UploadWindowBanner } from "@/components/imports/upload-window-banner";
 import { ServicePage } from "@/components/service-hub/service-page";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ function ImportList({ service, office }: { service: IServiceDefinition; office?:
   const [pageCount, setPageCount] = useState(0);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [status, setStatus] = useState("all");
   const [period, setPeriod] = useState("all");
   const [pagination, setPagination] = useState<PaginationState>({
@@ -88,20 +90,23 @@ function ImportList({ service, office }: { service: IServiceDefinition; office?:
       .finally(() => setIsLoading(false));
 
     return () => controller.abort();
-  }, [serviceKey, office, pagination, sorting, status, period]);
+  }, [serviceKey, office, pagination, sorting, status, period, reloadKey]);
 
   return (
     <div className="flex flex-col gap-3 min-h-[480px]">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <p className="text-sm text-muted-foreground">Importações enviadas por este escritório.</p>
-        <Button
-          onClick={() =>
-            navigate(`/services/${serviceKey}/imports/new${office ? `?office=${office}` : ""}`)
-          }
-        >
-          <Plus className="size-4" />
-          Nova importação
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <RunConsolidationButton onDone={() => setReloadKey((k) => k + 1)} />
+          <Button
+            onClick={() =>
+              navigate(`/services/${serviceKey}/imports/new${office ? `?office=${office}` : ""}`)
+            }
+          >
+            <Plus className="size-4" />
+            Nova importação
+          </Button>
+        </div>
       </div>
 
       <UploadWindowBanner compact />
