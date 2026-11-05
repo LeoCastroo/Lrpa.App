@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import api from "@/api";
+import { ClientCharts } from "@/components/clients/client-charts";
 import { ClientKpis } from "@/components/clients/client-kpis";
 import { ServiceCard } from "@/components/home/service-card";
 import { Button } from "@/components/ui/button";
@@ -113,6 +114,14 @@ export default function Page() {
     : menuGroups[0];
   const clientServices = useMemo(() => menuGroup?.services ?? [], [menuGroup]);
   const groups = useMemo(() => groupByCategory(clientServices), [clientServices]);
+  const categoryNames = useMemo(
+    () => Object.fromEntries(groups.map((g) => [g.category.key, g.category.name])),
+    [groups]
+  );
+  const serviceNames = useMemo(
+    () => Object.fromEntries(clientServices.map((s) => [s.key, s.name])),
+    [clientServices]
+  );
   const client = menuGroups[0]?.client;
   const officeCodes = menuGroup?.officeGroup?.codes;
   const officeCodesKey = officeCodes?.join(",") ?? "";
@@ -195,6 +204,9 @@ export default function Page() {
       </PageHero>
 
       {results && <ClientKpis results={results} windowLabel={windowLabel} />}
+      {results && (
+        <ClientCharts results={results} categoryNames={categoryNames} serviceNames={serviceNames} />
+      )}
 
       <div className="flex flex-col gap-8">
         {groups.map(({ category, services: categoryServices }) => {
