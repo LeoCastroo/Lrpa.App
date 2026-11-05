@@ -178,6 +178,7 @@ export default function Page() {
         <Separator />
         <CardContent className="pt-6">
           <DataTable
+            storageKey="feedback"
             total={data?.total ?? 0}
             columns={columns}
             data={data?.data ?? []}

@@ -146,6 +146,7 @@ function ImportList({ service, office }: { service: IServiceDefinition; office?:
       </div>
 
       <DataTable
+        storageKey={`imports:${serviceKey}`}
         total={total}
         columns={columns}
         data={imports}

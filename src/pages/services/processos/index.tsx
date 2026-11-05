@@ -173,6 +173,7 @@ function Processos({ service, office }: { service: IServiceDefinition; office?: 
       )}
 
       <DataTable
+        storageKey={`processos:${service.key}`}
         total={data?.total ?? 0}
         columns={columns}
         data={data?.data ?? []}

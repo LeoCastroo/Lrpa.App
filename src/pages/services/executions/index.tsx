@@ -164,6 +164,7 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
         Cada linha é uma rodada do robô. Clique para ver os {panel.unit.plural} processados nela.
       </p>
       <DataTable
+        storageKey={`executions:${service.key}`}
         total={data?.total ?? 0}
         columns={columns}
         data={data?.data ?? []}

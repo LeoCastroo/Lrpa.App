@@ -22,10 +22,45 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { CSSProperties, PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
 import { Button } from "./button";
 import { Checkbox } from "./checkbox";
 import { Skeleton } from "./skeleton";
+
+const MIN_COLUMN_WIDTH = 60;
+const MAX_COLUMN_WIDTH = 900;
+const STORAGE_PREFIX = "lrpa:table-widths:";
+
+type ColumnWidths = Record<string, number>;
+
+function loadWidths(storageKey?: string): ColumnWidths {
+  if (!storageKey) return {};
+  try {
+    const raw = window.localStorage.getItem(STORAGE_PREFIX + storageKey);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (!parsed || typeof parsed !== "object") return {};
+    return Object.fromEntries(
+      Object.entries(parsed).filter(([, v]) => typeof v === "number" && Number.isFinite(v))
+    ) as ColumnWidths;
+  } catch {
+    return {};
+  }
+}
+
+function saveWidths(storageKey: string | undefined, widths: ColumnWidths) {
+  if (!storageKey) return;
+  try {
+    if (Object.keys(widths).length === 0) window.localStorage.removeItem(STORAGE_PREFIX + storageKey);
+    else window.localStorage.setItem(STORAGE_PREFIX + storageKey, JSON.stringify(widths));
+  } catch {
+    // Sem armazenamento (janela privada, dados bloqueados): a tabela segue funcionando, só não lembra.
+  }
+}
+
+/** Largura definida pelo usuário: trava a coluna nesse tamanho (conteúdo maior é cortado com "…"). */
+function widthStyle(width: number | undefined): CSSProperties | undefined {
+  return width === undefined ? undefined : { width, minWidth: width, maxWidth: width };
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -44,6 +79,11 @@ interface DataTableProps<TData, TValue> {
   selectedCount?: number;
   classname?: string;
   meta?: TableMeta<TData>;
+  /**
+   * Identifica a tabela para lembrar, no navegador, as larguras de coluna que o usuário ajustou.
+   * Sem ela, o ajuste vale só enquanto a tela está aberta.
+   */
+  storageKey?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -63,7 +103,60 @@ export function DataTable<TData, TValue>({
   selectedCount,
   classname,
   meta,
+  storageKey,
 }: DataTableProps<TData, TValue>) {
+  const [widths, setWidths] = useState<ColumnWidths>(() => loadWidths(storageKey));
+  const loadedKey = useRef(storageKey);
+
+  // Trocou de tabela (ex.: outro serviço): carrega as larguras daquela.
+  useEffect(() => {
+    if (loadedKey.current === storageKey) return;
+    loadedKey.current = storageKey;
+    setWidths(loadWidths(storageKey));
+  }, [storageKey]);
+
+  // Grava depois que o usuário para de arrastar (evita escrever a cada pixel).
+  useEffect(() => {
+    if (loadedKey.current !== storageKey) return;
+    const timer = window.setTimeout(() => saveWidths(storageKey, widths), 300);
+    return () => window.clearTimeout(timer);
+  }, [widths, storageKey]);
+
+  function startResize(event: ReactPointerEvent<HTMLElement>, columnId: string) {
+    const header = event.currentTarget.closest("th");
+    if (!header) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const handle = event.currentTarget;
+    const startX = event.clientX;
+    const startWidth = header.getBoundingClientRect().width;
+    handle.setPointerCapture(event.pointerId);
+
+    const onMove = (moveEvent: PointerEvent) => {
+      const next = Math.min(
+        MAX_COLUMN_WIDTH,
+        Math.max(MIN_COLUMN_WIDTH, Math.round(startWidth + moveEvent.clientX - startX))
+      );
+      setWidths((prev) => (prev[columnId] === next ? prev : { ...prev, [columnId]: next }));
+    };
+    const onEnd = () => {
+      handle.removeEventListener("pointermove", onMove);
+      handle.removeEventListener("pointerup", onEnd);
+      handle.removeEventListener("pointercancel", onEnd);
+    };
+    handle.addEventListener("pointermove", onMove);
+    handle.addEventListener("pointerup", onEnd);
+    handle.addEventListener("pointercancel", onEnd);
+  }
+
+  function resetColumn(columnId: string) {
+    setWidths((prev) => {
+      if (!(columnId in prev)) return prev;
+      const { [columnId]: _removed, ...rest } = prev;
+      return rest;
+    });
+  }
+
   const [internalRowSelection, setInternalRowSelection] = useState<Record<string, boolean>>({});
   const rowSelection = controlledRowSelection ?? internalRowSelection;
 
@@ -86,6 +179,7 @@ export function DataTable<TData, TValue>({
       </div>
     ),
     enableSorting: false,
+    enableResizing: false,
   };
 
   const resolvedColumns = enableRowSelection ? [selectionColumn, ...columns] : columns;
@@ -133,7 +227,11 @@ export function DataTable<TData, TValue>({
                     const sorted = header.column.getIsSorted();
 
                     return (
-                      <TableHead key={header.id} className={header.column.columnDef.meta?.className}>
+                      <TableHead
+                        key={header.id}
+                        className={cn("relative", header.column.columnDef.meta?.className)}
+                        style={widthStyle(widths[header.column.id])}
+                      >
                         {header.isPlaceholder ? null : (
                           <div
                             className={
@@ -155,6 +253,20 @@ export function DataTable<TData, TValue>({
                                 )}
                               </span>
                             )}
+                          </div>
+                        )}
+                        {!header.isPlaceholder && header.column.getCanResize() && (
+                          <div
+                            role="separator"
+                            aria-orientation="vertical"
+                            aria-label="Ajustar largura da coluna (clique duplo restaura)"
+                            title="Arraste para ajustar a largura. Clique duplo restaura."
+                            className="group/resize absolute right-0 top-0 flex h-full w-3 cursor-col-resize touch-none select-none items-center justify-center"
+                            onPointerDown={(event) => startResize(event, header.column.id)}
+                            onDoubleClick={() => resetColumn(header.column.id)}
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            <span className="h-4 w-px bg-border transition-colors group-hover/resize:h-full group-hover/resize:w-0.5 group-hover/resize:bg-primary/60" />
                           </div>
                         )}
                       </TableHead>
@@ -183,7 +295,14 @@ export function DataTable<TData, TValue>({
                     onClick={() => onRowClick?.(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className={cell.column.columnDef.meta?.className}>
+                      <TableCell
+                        key={cell.id}
+                        className={cn(
+                          cell.column.columnDef.meta?.className,
+                          widths[cell.column.id] !== undefined && "overflow-hidden text-ellipsis"
+                        )}
+                        style={widthStyle(widths[cell.column.id])}
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -207,6 +326,12 @@ export function DataTable<TData, TValue>({
             </span>
           ) : (
             <span className="text-sm text-muted-foreground">{total} registro(s) no total</span>
+          )}
+
+          {Object.keys(widths).length > 0 && (
+            <Button variant="ghost" size="sm" className="ml-2" onClick={() => setWidths({})}>
+              Restaurar colunas
+            </Button>
           )}
 
           <span className="text-sm text-muted-foreground ml-auto mr-4 select-none">

@@ -274,6 +274,7 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
       cols.unshift({
         id: "__select",
         enableSorting: false,
+        enableResizing: false,
         header: () =>
           failedIds.length > 0 ? (
             <Checkbox
@@ -396,6 +397,7 @@ function Items({ service, office }: { service: IServiceDefinition; office?: stri
       )}
 
       <DataTable
+        storageKey={`items:${service.key}`}
         total={data?.total ?? 0}
         columns={columns}
         data={data?.data ?? []}
