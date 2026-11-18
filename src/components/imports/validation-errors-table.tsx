@@ -11,15 +11,23 @@ import { IValidationError } from "@/service/types/Import";
 
 const MAX_SHOWN = 50;
 
-export function ValidationErrorsTable({ errors }: { errors: IValidationError[] }) {
+interface Props {
+  errors: IValidationError[];
+  variant?: "error" | "warning";
+}
+
+export function ValidationErrorsTable({ errors, variant = "error" }: Props) {
   const shown = errors.slice(0, MAX_SHOWN);
   const remaining = errors.length - shown.length;
+  const isWarning = variant === "warning";
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Erros de validação</span>
-        <Badge variant="destructive">{errors.length}</Badge>
+        <span className="text-sm font-medium">
+          {isWarning ? "Linhas que não serão enviadas ao robô" : "Erros de validação"}
+        </span>
+        <Badge variant={isWarning ? "secondary" : "destructive"}>{errors.length}</Badge>
       </div>
       <div className="rounded-md border overflow-x-auto">
         <Table>
@@ -28,7 +36,7 @@ export function ValidationErrorsTable({ errors }: { errors: IValidationError[] }
               <TableHead>Linha</TableHead>
               <TableHead>Coluna</TableHead>
               <TableHead>Motivo</TableHead>
-              <TableHead>Valor encontrado</TableHead>
+              <TableHead>{isWarning ? "Processo" : "Valor encontrado"}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -49,7 +57,9 @@ export function ValidationErrorsTable({ errors }: { errors: IValidationError[] }
       </div>
       {remaining > 0 && (
         <p className="text-sm text-muted-foreground">
-          … e mais {remaining} erro(s). Corrija os listados e reenvie.
+          {isWarning
+            ? `… e mais ${remaining} linha(s) fora do envio.`
+            : `… e mais ${remaining} erro(s). Corrija os listados e reenvie.`}
         </p>
       )}
     </div>

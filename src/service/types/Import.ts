@@ -25,6 +25,8 @@ export interface IImport {
   consolidated_at: string | null;
   created_at: string;
   validation_errors?: IValidationError[] | null;
+  /** Linhas aceitas que não vão para o robô. */
+  validation_warnings?: IValidationError[] | null;
 }
 
 export interface IImportListResponse {

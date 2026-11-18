@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -34,6 +34,7 @@ export default function Page() {
   const [fileError, setFileError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<IValidationError[] | null>(null);
+  const [accepted, setAccepted] = useState<IImport | null>(null);
 
   useEffect(() => {
     if (notFound) toast.error("Você não tem acesso a este serviço.");
@@ -50,6 +51,7 @@ export default function Page() {
   function handleFileChange(next: File | null) {
     setFileError(null);
     setErrors(null);
+    setAccepted(null);
     if (next) {
       if (!next.name.toLowerCase().endsWith(".xlsx")) {
         setFileError("Apenas arquivos .xlsx são aceitos.");
@@ -71,10 +73,16 @@ export default function Page() {
     }
     setIsSubmitting(true);
     setErrors(null);
+    setAccepted(null);
     try {
-      await api.imports.createImport(serviceKey, file, officeState.office);
+      const created = await api.imports.createImport(serviceKey, file, officeState.office);
+      if (created.validation_warnings?.length) {
+        setAccepted(created);
+        setFile(null);
+        return;
+      }
       toast.success(
-        "Planilha enviada com sucesso. Ela será consolidada e enviada ao RPA às 18h."
+        `Planilha aceita: ${created.row_count} linha(s) conferida(s). Ela será consolidada e enviada ao RPA às 18h.`
       );
       navigate(`/services/${serviceKey}/imports${officeState.office ? `?office=${officeState.office}` : ""}`);
     } catch (error: any) {
@@ -163,6 +171,23 @@ export default function Page() {
           )}
           {errors && errors.length > 0 && <ValidationErrorsTable errors={errors} />}
 
+          {accepted && (
+            <>
+              <Alert>
+                <CheckCircle2 />
+                <AlertTitle>
+                  Planilha aceita: {accepted.row_count} linha(s) serão enviadas ao robô.
+                </AlertTitle>
+                <AlertDescription>
+                  {accepted.validation_warnings!.length} linha(s) ficaram de fora porque o robô
+                  ainda não cumpre essas tarefas. Elas não precisam ser reenviadas; trate-as
+                  manualmente no e-Xyon.
+                </AlertDescription>
+              </Alert>
+              <ValidationErrorsTable errors={accepted.validation_warnings!} variant="warning" />
+            </>
+          )}
+
           <Separator />
           <div className="flex justify-end gap-2 pb-4">
             <Button
@@ -174,7 +199,7 @@ export default function Page() {
                 )
               }
             >
-              Cancelar
+              {accepted ? "Ver importações" : "Cancelar"}
             </Button>
             <Button type="button" onClick={handleSubmit} disabled={disabled}>
               {isSubmitting && <Loader2 className="size-4 animate-spin" />}

@@ -163,6 +163,11 @@ export default function Page() {
         item.validation_errors.length > 0 && (
           <ValidationErrorsTable errors={item.validation_errors} />
         )}
+      {item.status !== "REJECTED" &&
+        item.validation_warnings &&
+        item.validation_warnings.length > 0 && (
+          <ValidationErrorsTable errors={item.validation_warnings} variant="warning" />
+        )}
     </div>
   );
 }
