@@ -140,8 +140,8 @@ export default function Page() {
             <CardContent className="flex flex-col gap-3">
               <LayoutSpecTable columns={service!.layout?.columns ?? []} />
               <p className="text-sm text-muted-foreground">
-                A primeira linha da planilha deve conter exatamente os cabeçalhos acima.
-                Formato aceito: .xlsx.
+                Envie uma única aba, com os cabeçalhos acima na primeira linha. Outras colunas
+                são ignoradas. Formato aceito: .xlsx.
               </p>
               <div>
                 <TemplateDownloadButton serviceKey={serviceKey!} office={officeState.office} />
