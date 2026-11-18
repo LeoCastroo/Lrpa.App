@@ -8,7 +8,7 @@ import { ServicePage } from "@/components/service-hub/service-page";
 import { DataTable } from "@/components/ui/data-table";
 import { formatDateTime, formatDuration, formatNumber } from "@/lib/time";
 import { IExecution, IPaginated } from "@/service/types/Panel";
-import { IServiceDefinition } from "@/service/types/Service";
+import { IServiceDefinition, panelHidden } from "@/service/types/Service";
 
 const PAGE_SIZE = 20;
 
@@ -21,6 +21,7 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
   const [data, setData] = useState<IPaginated<IExecution> | null>(null);
   const [loading, setLoading] = useState(false);
   const panel = service.panel!;
+  const hideDuration = Boolean(panelHidden(service, office).executionColumns?.includes("duration"));
 
   const sorting: SortingState = sort ? [{ id: sort, desc: sortDir === "desc" }] : [];
 
@@ -56,13 +57,17 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
         enableSorting: false,
         cell: ({ row }) => <ExecutionStateBadge state={row.original.state} />,
       },
-      {
-        id: "duration",
-        header: "Duração",
-        accessorFn: (row) => row.durationSeconds,
-        enableSorting: true,
-        cell: ({ row }) => formatDuration(row.original.durationSeconds),
-      },
+      ...(hideDuration
+        ? []
+        : ([
+            {
+              id: "duration",
+              header: "Duração",
+              accessorFn: (row) => row.durationSeconds,
+              enableSorting: true,
+              cell: ({ row }) => formatDuration(row.original.durationSeconds),
+            },
+          ] as ColumnDef<IExecution>[])),
       {
         id: "ok",
         header: "Com sucesso",
@@ -126,7 +131,7 @@ function Executions({ service, office }: { service: IServiceDefinition; office?:
       cell: ({ row }) => (row.original.error ? "Falha técnica na execução" : "—"),
     });
     return cols;
-  }, [panel]);
+  }, [panel, hideDuration]);
 
   const pagination: PaginationState = { pageIndex: page - 1, pageSize: PAGE_SIZE };
   const onPaginationChange: OnChangeFn<PaginationState> = (updater) => {

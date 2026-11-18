@@ -46,6 +46,22 @@ export interface IPanelMeta {
   hasInsights: boolean;
   /** Quando true, as falhas são separadas em "Requer Tratativa" e "Falha da Automação". */
   failureClassification: boolean;
+  /** ADMIN: partes escondidas por escritório (rpa_code). */
+  hiddenByOffice?: Record<string, IPanelHidden>;
+  /** CLIENT: partes escondidas no escritório dele. */
+  hidden?: IPanelHidden;
+}
+
+export interface IPanelHidden {
+  tabs?: "results"[];
+  executionColumns?: "duration"[];
+}
+
+/** Partes do painel escondidas para o escritório em uso. */
+export function panelHidden(service: IServiceDefinition, office?: string): IPanelHidden {
+  const panel = service.panel;
+  if (!panel) return {};
+  return (office ? panel.hiddenByOffice?.[office] : undefined) ?? panel.hidden ?? {};
 }
 
 export interface ILakeMeta {

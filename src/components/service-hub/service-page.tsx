@@ -14,14 +14,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useOffice, OfficeState } from "@/hooks/use-office";
 import { useService } from "@/hooks/use-service";
 import { cn } from "@/lib/utils";
-import { IServiceCapabilities, IServiceDefinition } from "@/service/types/Service";
+import { IPanelHidden, IServiceCapabilities, IServiceDefinition, panelHidden } from "@/service/types/Service";
 
 type TabKey = "overview" | "results" | "items" | "executions" | "docs" | "imports" | "jurimetria" | "processos";
 
 interface TabDef {
   key: TabKey;
   label: (service: IServiceDefinition) => string;
-  visible: (service: IServiceDefinition, isAdmin: boolean) => boolean;
+  visible: (service: IServiceDefinition, isAdmin: boolean, hidden: IPanelHidden) => boolean;
 }
 
 function capitalize(text: string): string {
@@ -33,7 +33,8 @@ const TABS: TabDef[] = [
   {
     key: "results",
     label: () => "Resultados",
-    visible: (s) => s.capabilities.panel && Boolean(s.panel?.hasInsights),
+    visible: (s, _isAdmin, hidden) =>
+      s.capabilities.panel && Boolean(s.panel?.hasInsights) && !hidden.tabs?.includes("results"),
   },
   { key: "jurimetria", label: () => "Jurimetria", visible: (s) => s.capabilities.lake },
   {
@@ -57,7 +58,7 @@ const TABS: TabDef[] = [
 
 /** Primeira aba disponível para o serviço (usada pela rota /services/:key). */
 export function defaultTab(service: IServiceDefinition, isAdmin: boolean): TabKey | null {
-  return TABS.find((t) => t.visible(service, isAdmin))?.key ?? null;
+  return TABS.find((t) => t.visible(service, isAdmin, {}))?.key ?? null;
 }
 
 /** Mantém escritório e período ao trocar de aba. */
@@ -74,7 +75,8 @@ function carriedSearch(search: string): string {
 
 function HubHeader({ service, officeState }: { service: IServiceDefinition; officeState: OfficeState }) {
   const { pathname, search } = useLocation();
-  const tabs = TABS.filter((t) => t.visible(service, officeState.isAdmin));
+  const hidden = panelHidden(service, officeState.office);
+  const tabs = TABS.filter((t) => t.visible(service, officeState.isAdmin, hidden));
   const suffix = carriedSearch(search);
 
   return (
@@ -146,7 +148,7 @@ export function ServicePage({
 }) {
   const { service, isLoading, notFound } = useService();
   const officeState = useOffice(service);
-  const { search } = useLocation();
+  const { pathname, search } = useLocation();
 
   useEffect(() => {
     if (notFound) toast.error("Você não tem acesso a este serviço.");
@@ -157,6 +159,13 @@ export function ServicePage({
 
   const allowed = service.capabilities[require];
   if (!allowed) return <Navigate to={`/services/${service.key}${search}`} replace />;
+
+  // Aba escondida para este escritório (ex.: URL de Resultados aberta direto).
+  const tabKey = pathname.split("/")[3];
+  const tab = TABS.find((t) => t.key === tabKey);
+  if (tab && !tab.visible(service, officeState.isAdmin, panelHidden(service, officeState.office))) {
+    return <Navigate to={`/services/${service.key}/overview${search}`} replace />;
+  }
 
   return (
     <div className="container mx-auto py-2 flex flex-col gap-4">
